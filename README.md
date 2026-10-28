@@ -55,7 +55,7 @@ Entra con el usuario creado. Completa tu nombre, altura, edad al comenzar, fecha
 - En cada día, abre desayuno, comida o cena para escribir una nota y añadir fotografías. Merienda es opcional.
 - En **Peso**, añade los siguientes pesajes. La gráfica conserva todos los registros.
 
-Los objetivos duran hasta 14 días. Las semanas empiezan en la fecha inicial del objetivo; el deporte cuenta días distintos y no sesiones. Cada día se puede editar, incluidas fechas anteriores. La siguiente quincena puede copiar los objetivos de la anterior, sin copiar sus marcas.
+Los objetivos duran hasta 14 días. Las semanas de deporte van de lunes a domingo y cuentan días distintos. Se incluye toda la actividad de esa semana, aunque parte quede fuera de la quincena. Las semanas que cruzan una revisión se muestran como parciales y las semanas en curso permanecen abiertas. Una misma semana puede aparecer en dos quincenas con el mismo recuento; no son sesiones duplicadas. Cada día se puede editar, incluidas fechas anteriores. La siguiente quincena puede copiar los objetivos de la anterior, sin copiar sus marcas.
 
 ## Desarrollo local
 
@@ -103,3 +103,5 @@ El archivo `package-lock.json` fija las versiones instaladas. El workflow cambia
 ## Estado de verificación del paquete
 
 Se ha comprobado la sintaxis JavaScript, la compilación de producción y las pruebas de lógica de fechas, recuentos, gráfica y escape de texto. La infraestructura de vista previa no estuvo disponible en el entorno de creación. No se ha iniciado sesión en la cuenta del propietario ni se han probado escrituras reales en su Supabase; las comprobaciones de acceso y fotos deben completarse tras el despliegue.
+
+Las fotografías se amplían en un visor dentro de la página, con navegación, ampliación y cierre mediante Escape. Abrirlo y cerrarlo conserva el formulario sin guardar.

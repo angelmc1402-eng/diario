@@ -5,3 +5,18 @@ export function periodFor(anchor, date) { const n = Math.floor(daysBetween(ancho
 export function weekCount(exercise,start) {return new Set(exercise.filter(x=>x.date>=start && x.date<=addDays(start,6)).map(x=>x.date)).size;}
 export function escapeHtml(value='') {return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 export function weightPoints(weights) { const rows=[...weights].sort((a,b)=>a.date.localeCompare(b.date)); if(!rows.length)return []; const min=Math.min(...rows.map(x=>+x.weight_kg))-1,max=Math.max(...rows.map(x=>+x.weight_kg))+1; const span=Math.max(1,daysBetween(rows[0].date,rows.at(-1).date)); return rows.map(x=>({...x,x:40+daysBetween(rows[0].date,x.date)/span*620,y:180-(+x.weight_kg-min)/(max-min)*140})); }
+
+export function mondayOf(date) {
+  const weekday = new Date(date + 'T12:00:00Z').getUTCDay();
+  return addDays(date, -((weekday + 6) % 7));
+}
+export function calendarWeeks(start, end, reference) {
+  if (end < start) return [];
+  const weeks = [];
+  for (let date = mondayOf(start); date <= end; date = addDays(date, 7)) {
+    const last = addDays(date, 6);
+    weeks.push({start: date, end: last, partial: date < start || last > end,
+      status: reference < date ? 'upcoming' : reference > last ? 'finished' : 'current'});
+  }
+  return weeks;
+}
