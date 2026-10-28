@@ -11,3 +11,45 @@
 body.viewer-open{overflow:hidden}.photo-viewer{position:fixed;inset:0;margin:0;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border:0;padding:0;background:#142019f5;color:#fff;overflow:hidden}.photo-viewer::backdrop{background:#142019db;backdrop-filter:blur(7px)}.photo-viewer[open]{display:flex;flex-direction:column}.viewer-toolbar{display:flex;align-items:center;justify-content:space-between;padding:calc(15px + env(safe-area-inset-top)) 24px 15px;gap:15px;flex-shrink:0}.viewer-toolbar>div{display:flex;align-items:center;gap:14px}.viewer-counter{font-size:12px;color:#d3dbce}.photo-viewer button{display:flex;align-items:center;justify-content:center;color:#fff;background:#ffffff14;border:1px solid #ffffff25;border-radius:9px;min-height:44px;min-width:44px;cursor:pointer}.photo-viewer button:hover{background:#ffffff26}.photo-viewer button:disabled{opacity:.28;cursor:default}.viewer-zoom{font-size:12px;padding:0 15px}.viewer-close{font-size:29px;font-weight:300}.viewer-body{min-height:0;flex:1;display:flex;align-items:center;gap:14px;padding:0 24px calc(25px + env(safe-area-inset-bottom))}.viewer-stage{flex:1;min-width:0;height:100%;display:flex;align-items:center;justify-content:center;overflow:auto;position:relative;overscroll-behavior:contain;border-radius:10px}.viewer-stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:5px}.viewer-stage img[hidden]{display:none}.viewer-stage.zoomed{display:block}.viewer-stage.zoomed img{max-width:none;max-height:none;width:auto;height:auto;margin:auto}.viewer-status{position:absolute;text-align:center;inset:auto 10px;font-size:12px;color:#d5ddcf}.viewer-status:empty{display:none}.viewer-previous,.viewer-next{font-size:34px;font-weight:300;flex-shrink:0}.photo-viewer button[hidden]{display:none}.viewer-zoom:focus-visible,.photo-viewer button:focus-visible{outline:3px solid #acc399;outline-offset:4px}
 @media(max-width:760px){.viewer-toolbar{padding:calc(12px + env(safe-area-inset-top)) 14px 12px}.viewer-toolbar>div{gap:8px}.viewer-body{padding:0 8px calc(12px + env(safe-area-inset-bottom));gap:5px}.photo-viewer .viewer-previous,.photo-viewer .viewer-next{min-width:32px;width:32px;font-size:27px}.viewer-stage{border-radius:5px}.week-status{font-size:10px}}
 .meal-card>.meal-image,.meal-card>.meal-caption{width:100%;text-align:left}.meal-card>.meal-caption{display:block;min-height:50px}.meal-card>.meal-caption:hover{background:#f5f8ef}.meal-card>.meal-image:focus-visible,.meal-card>.meal-caption:focus-visible{outline-offset:-3px}
+
+/* Desktop readability: maintain the layout while giving secondary text room. */
+@media(min-width:761px){
+  .sidebar{width:250px}.workspace{margin-left:250px}
+  .nav-label{font-size:11px;color:#65715f;letter-spacing:1.2px}
+  .nav-item{font-size:15px;line-height:1.45;color:#53634e;padding:14px 12px;gap:11px}
+  .nav-item span{white-space:normal}.nav-item.active{color:#294e38}
+  .brand-sub{font-size:12px;color:#65715f;line-height:1.5}
+  .identity strong{font-size:14px;line-height:1.45;max-width:165px}
+  .identity small{font-size:12px;color:#65715f;line-height:1.5}
+  .logout{font-size:13px;color:#65715f;gap:10px}
+  .topbar{font-size:13px;color:#586650}.connection{font-size:12px;color:#586650}
+  .text-button{font-size:13px;line-height:1.55}.top-right>.text-button{font-size:12px}
+  .page-head p{font-size:14px;color:#65715f}.eyebrow{font-size:11px}
+  .period-bar strong{font-size:14px}.pill{font-size:11px;color:#586650}
+  .stat>span{font-size:13px;color:#586650}.stat strong small{font-size:12px;color:#65715f}
+  .stat p{font-size:12px;color:#65715f;line-height:1.65;min-height:0}
+  .panel-head .muted{font-size:12px;color:#65715f}
+  .day-title strong{font-size:14px}.day-title small{font-size:12px;color:#65715f;line-height:1.5}
+  .day-num small{font-size:11px;color:#65715f}.today-tag{font-size:11px;color:#4b6b3d}
+  .meal-caption strong{font-size:12px}.meal-caption small{font-size:12px;color:#65715f}
+  .meal-image span{font-size:12px;color:#65715f}
+  .exercise-header h3,.daily-checks h3{font-size:13px}
+  .exercise-list>p,.exercise-entry small{font-size:12px;color:#65715f;line-height:1.6}
+  .exercise-entry strong{font-size:14px}.check-line{font-size:13px;color:#586650}
+  .goal-card h3{font-size:14px;line-height:1.65}
+  .goal-progress,.goal-progress strong{font-size:12px;line-height:1.6;color:#536b46}
+  .goal-card>.text-button{font-size:12px;min-height:36px}
+  .goal-card p,.week-note{font-size:12px!important;color:#65715f;line-height:1.65}
+  .week-status{font-size:12px;line-height:1.6;color:#65715f}.week-status.current{color:#446738}
+  .week-block{padding-top:10px}.week-block+.week-block{margin-top:13px}
+  .appointment .eyebrow{font-size:10px;color:#65715f}
+  .appointment p{font-size:13px;color:#586650;line-height:1.6}
+  .quiet-note{font-size:12px;color:#65715f;line-height:1.65}.quiet-note svg{width:18px}
+  .legend{font-size:11px;color:#65715f}.muted{color:#65715f}
+  .field>span{font-size:13px}.field input,.field select,.field textarea{font-size:14px}
+  .check-calendar label>span{font-size:12px}.check-calendar strong{font-size:14px}
+  .page-footer{font-size:11px;color:#65715f}.milestone-row p{font-size:12px}
+  table{font-size:13px}th{font-size:12px;color:#65715f}
+}
+@media(min-width:1100px){.sidebar{width:272px}.workspace{margin-left:272px}.summary-layout{grid-template-columns:minmax(0,1fr) 310px}}
+@media(min-width:1500px){.summary-layout{grid-template-columns:minmax(0,1fr) 340px}}

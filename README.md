@@ -1,65 +1,58 @@
 # Diario
 
-Aplicación personal para registrar comidas con fotografías, deporte, objetivos, hitos, peso y citas. Diseñada para móvil y ordenador. Interfaz en español.
+Diario personal de comidas, actividad física, objetivos, hitos, peso y citas. Interfaz en español para ordenador y móvil, con datos privados en Supabase y publicación en GitHub Pages.
 
-## Publicación en GitHub Pages, sin instalar programas
+**Web:** [angelmc1402-eng.github.io/diario](https://angelmc1402-eng.github.io/diario/)  
+**Autor del proyecto:** Ángel Moreno  
+**Documentación:** 28 de octubre de 2026
 
-El proyecto está preparado para `angelmc1402-eng/diario`.
+## Documentación
 
-### 1. Conexión a Supabase preparada
+- [Memoria completa en PDF](docs/MEMORIA.pdf).
+- [Memoria editable en Markdown](docs/MEMORIA.md).
+- [Texto para incorporar a otra memoria](docs/TEXTO-PARA-MEMORIA.md).
 
-El workflow ya incluye la URL y la clave publicable del proyecto. No necesitas crear variables para el primer despliegue. Para cambiar de proyecto, puedes definir en **Settings → Secrets and variables → Actions → Variables**:
+## Funciones
 
-- `VITE_SUPABASE_URL`: copia el valor de `.env.example`, sin el nombre de la variable ni el signo igual.
-- `VITE_SUPABASE_PUBLISHABLE_KEY`: copia el valor correspondiente de `.env.example`.
+- Acceso con correo y contraseña; perfil inicial y ajustes personales.
+- Quincenas de 14 días desde la fecha de inicio, con días desplegables.
+- Desayuno, comida y cena preparados; merienda opcional. Una entrada por tipo y fecha.
+- Notas y varias fotos por comida, mediante galería o cámara del dispositivo.
+- Compresión a JPEG de hasta 1600 píxeles en el lado mayor y visor dentro de la página, con ampliación, navegación y cierre con Escape.
+- Varias sesiones de deporte al día, con duración y nota opcionales.
+- Objetivos diarios, de deporte semanal o con marcas manuales. Se pueden copiar a la siguiente quincena sin sus marcas.
+- Hitos fechados, registro de peso con gráfica, citas y exportación JSON.
+- Edición y eliminación de registros desde móvil u ordenador.
+- Menú lateral en escritorio, menú plegable en móvil y tamaños de texto mayores en escritorio para navegación y datos secundarios.
 
-Estas dos variables son públicas por diseño. Nunca utilices una clave secret o service_role en la web. Los permisos RLS de Supabase protegen los datos.
+## Semanas y quincenas
 
-### 2. Activa GitHub Pages
+Las **quincenas** organizan las revisiones; el deporte se cuenta por **semanas de lunes a domingo**. Se cuentan días distintos, no el número de sesiones.
 
-Abre **Settings → Pages → Build and deployment → Source → GitHub Actions**.
+Si una quincena empieza el miércoles 28 de octubre, el deporte del martes 27 cuenta en la semana del lunes 26 al domingo 1. La semana puede aparecer en dos quincenas con el mismo recuento: no se duplican registros.
 
-### 3. Sube los archivos
+Las semanas que solo coinciden parcialmente con la quincena se identifican como parciales. Una revisión entre semana no las cierra: continúan en curso hasta el domingo. El resumen distingue la actividad semanal de los días con deporte dentro del periodo visible.
 
-Descomprime el ZIP. En la página principal del repositorio, pulsa **Add file → Upload files** (o **uploading an existing file** si está vacío).
+## Arquitectura
 
-Arrastra **el contenido** de la carpeta `diario` al área de subida. `package.json` e `index.html` deben quedar en la raíz del repositorio, sin otra carpeta `diario` encima. Incluye `.github`, `.gitignore` y `.env.example`. No subas `.env.local`, `node_modules` ni `dist`.
+Aplicación estática con JavaScript, HTML y CSS. Vite construye la web; Supabase aporta autenticación, PostgreSQL y almacenamiento privado. No hay un servidor propio en GitHub Pages.
 
-Guarda los cambios en la rama `main` con **Commit changes**. Si GitHub no acepta una carpeta oculta al arrastrarla, crea `.github/workflows/deploy.yml` mediante **Add file → Create new file**, y pega el contenido del archivo suministrado.
+| Archivo | Responsabilidad |
+| --- | --- |
+| `src/main.js` | Interfaz, sesión, formularios y operaciones del diario |
+| `src/domain.js` | Fechas, quincenas, semanas, recuentos y gráfica |
+| `src/goal-store.js` | Guardado de objetivos y alternativa ante errores de red |
+| `src/photo-viewer.js` | Visor de imágenes que conserva el formulario |
+| `src/style.css` | Diseño adaptable y legibilidad |
+| `supabase/setup.sql` | Esquema y permisos para proyectos nuevos |
+| `supabase/goal-update.sql` | Función de actualización de objetivos con los permisos del usuario |
+| `.github/workflows/deploy.yml` | Pruebas, construcción y despliegue |
 
-### 4. Comprueba la publicación
-
-Ve a **Actions → Publicar diario**. El proceso instala las dependencias, ejecuta las pruebas y publica la web. Cuando termine en verde, visita:
-
-https://angelmc1402-eng.github.io/diario/
-
-Si el proceso se ejecutó antes de configurar las variables, vuelve a lanzarlo desde **Actions → Publicar diario → Run workflow**.
-
-### 5. Configura Supabase
-
-Las tablas deben ser las creadas con el SQL facilitado: `profiles`, `meals`, `exercise`, `goals`, `goal_checks`, `milestones`, `weights`, `appointments`, todas con RLS habilitado. El contenedor `comidas` debe ser privado y tener políticas para la carpeta de cada usuario. En `supabase/setup.sql` tienes una copia de la estructura para proyectos nuevos; en tu proyecto ya configurado no hace falta ejecutarla de nuevo.
-
-En **Authentication → URL Configuration** configura:
-
-- **Site URL:** `https://angelmc1402-eng.github.io/diario/`
-- **Redirect URLs:** añade esa misma dirección.
-
-Crea tu usuario en **Authentication → Users**, con correo confirmado, y desactiva nuevos registros y acceso anónimo. La aplicación utiliza acceso con correo y contraseña. La recuperación por correo requiere que la entrega de correos esté configurada correctamente en Supabase.
-
-### 6. Primer acceso
-
-Entra con el usuario creado. Completa tu nombre, altura, edad al comenzar, fecha inicial y, opcionalmente, peso inicial. Estos datos se escriben en tu cuenta privada; no están preinsertados en el código.
-
-- En **Objetivos**, añade el objetivo de deporte, elige **Días de deporte por semana** e indica 3 días. Añade el desayuno como objetivo de **Casilla diaria**.
-- En **Ajustes → Citas**, registra la próxima revisión.
-- En cada día, abre desayuno, comida o cena para escribir una nota y añadir fotografías. Merienda es opcional.
-- En **Peso**, añade los siguientes pesajes. La gráfica conserva todos los registros.
-
-Los objetivos duran hasta 14 días. Las semanas de deporte van de lunes a domingo y cuentan días distintos. Se incluye toda la actividad de esa semana, aunque parte quede fuera de la quincena. Las semanas que cruzan una revisión se muestran como parciales y las semanas en curso permanecen abiertas. Una misma semana puede aparecer en dos quincenas con el mismo recuento; no son sesiones duplicadas. Cada día se puede editar, incluidas fechas anteriores. La siguiente quincena puede copiar los objetivos de la anterior, sin copiar sus marcas.
+Versiones observadas en el lockfile instalado: Vite 7.3.7 y `@supabase/supabase-js` 2.118.0. `package-lock.json` permite repetir la instalación mediante `npm ci`.
 
 ## Desarrollo local
 
-Instala Node.js 22.12 o superior. En la carpeta del proyecto:
+Requisito: Node.js 22.12 o superior.
 
 ```bash
 npm ci
@@ -67,7 +60,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Abre la URL que muestre Vite, incluyendo `/diario/`. En Windows puedes copiar `.env.example` manualmente y renombrar la copia a `.env.local`.
+En Windows puedes copiar el archivo manualmente. Abre la URL de Vite incluyendo `/diario/`.
 
 ```bash
 npm test
@@ -75,33 +68,54 @@ npm run build
 npm run preview
 ```
 
-El archivo `package-lock.json` fija las versiones instaladas. El workflow cambia automáticamente la ruta base al nombre del repositorio. Para publicar en la raíz de un dominio, usa `VITE_BASE_PATH=/` al construir.
+## Configurar Supabase
 
-## Privacidad y funcionamiento
+En un proyecto nuevo, ejecuta `supabase/setup.sql` desde SQL Editor. Crea ocho tablas: `profiles`, `meals`, `exercise`, `goals`, `goal_checks`, `milestones`, `weights` y `appointments`; activa RLS y crea el contenedor privado `comidas` con sus políticas.
 
-- El código y la interfaz de entrada son públicos. Los registros requieren una sesión y permisos de Supabase.
-- Todas las consultas se filtran por usuario; RLS debe estar habilitado también en la base de datos.
-- Las fotos se guardan en rutas `ID_USUARIO/UUID.jpg`. Se comprimen a JPEG de hasta 1600 píxeles y se muestran mediante enlaces temporales privados.
-- El código permite varias fotos por comida. Las imágenes HEIC dependen de que el navegador pueda decodificarlas; en caso contrario muestra un error y pide JPEG o PNG.
-- Una comida puede tener solo nota, solo fotos, o ambas. Hay una entrada por tipo de comida y fecha. Los pesajes tienen una entrada por fecha.
-- Los guardados requieren internet. No hay cola de guardado sin conexión. Un fallo de red muestra un aviso; no se anuncia un guardado correcto antes de recibir respuesta del servidor.
-- La prueba de la pantalla de entrada usa datos de ejemplo en memoria y no escribe en Supabase. Se borra al recargar o salir.
-- La exportación JSON incluye registros y rutas de fotografías, no los archivos de imagen. Para conservar una foto, ábrela desde su comida y descárgala con el navegador.
-- La edad es la edad al comenzar, no una edad calculada automáticamente. Las fechas y citas se presentan en Europe/Madrid.
-- Las cuotas, la disponibilidad y las copias de seguridad dependen de tu proyecto y plan de Supabase. No hay objetivo de peso ni cálculos médicos automáticos.
+En un proyecto que ya tiene las tablas, no recrees ni borres los datos para actualizar la web. La función de recuperación del guardado de objetivos está en `supabase/goal-update.sql` y ya se ha aplicado al proyecto original.
 
-## Comprobación antes de usar datos reales
+1. Crea un usuario con correo confirmado en **Authentication → Users**.
+2. Para uso individual, desactiva nuevos registros y el acceso anónimo.
+3. En **Authentication → URL Configuration**, configura la dirección de la web como Site URL y añádela a Redirect URLs.
+4. Comprueba la entrega del correo para recuperar la contraseña.
 
-1. En ordenador y móvil: entrar, salir y volver a entrar.
-2. Guardar una comida con foto, cerrar la página y confirmar que persiste en otro dispositivo.
-3. Editar y borrar registros, añadir merienda y varias sesiones de deporte el mismo día.
-4. Añadir un objetivo diario y uno de deporte, marcar casillas y cambiar de quincena.
-5. Añadir y editar pesajes, comprobar gráfica e historial.
-6. Sin sesión, confirmar que no se pueden leer tablas ni descargar fotos; con una segunda cuenta de prueba, confirmar que no puede acceder a tus filas o fotos.
-7. Revisar los tamaños de móvil y ordenador, navegación con teclado y recuperación de contraseña.
+```env
+VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=TU-CLAVE-PUBLICABLE
+```
 
-## Estado de verificación del paquete
+Utiliza únicamente una clave publicable en el cliente. La contraseña de la base de datos y las claves secret o service_role no deben subirse al repositorio ni incluirse en Vite.
 
-Se ha comprobado la sintaxis JavaScript, la compilación de producción y las pruebas de lógica de fechas, recuentos, gráfica y escape de texto. La infraestructura de vista previa no estuvo disponible en el entorno de creación. No se ha iniciado sesión en la cuenta del propietario ni se han probado escrituras reales en su Supabase; las comprobaciones de acceso y fotos deben completarse tras el despliegue.
+## Publicar en GitHub Pages
 
-Las fotografías se amplían en un visor dentro de la página, con navegación, ampliación y cierre mediante Escape. Abrirlo y cerrarlo conserva el formulario sin guardar.
+1. Abre **Settings → Pages → Build and deployment → Source** y selecciona exactamente **GitHub Actions**.
+2. Para otro proyecto Supabase, define `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` en **Settings → Secrets and variables → Actions → Variables**. El workflow incluye valores públicos de respaldo para el proyecto original.
+3. Sube los cambios a `main`. **Publicar diario** instalará las dependencias, ejecutará las pruebas, construirá `dist` y lo desplegará.
+4. Comprueba que el proceso termina correctamente. También puede ejecutarse desde **Run workflow**.
+
+El workflow ajusta la ruta base al nombre del repositorio. No combines la publicación desde una rama con este workflow: la primera puede servir el HTML fuente sin construir y dejar la página vacía. Los artefactos incluyen el número de intento para permitir relanzamientos sin colisiones.
+
+## Datos y privacidad
+
+- RLS restringe las filas por `user_id`. La función alternativa de objetivos usa `security invoker`, exige el propietario y respeta RLS.
+- Las fotos se guardan bajo `ID_USUARIO/UUID.jpg` y se muestran mediante enlaces firmados temporales. Esos enlaces permiten acceder a la imagen durante su vigencia a quien los posea.
+- La exportación JSON contiene registros y rutas; no incluye los archivos de imagen. No es una copia de seguridad completa de las fotos.
+- Los datos de demostración se mantienen en memoria y no se escriben en Supabase.
+- Las fechas y citas se presentan en `Europe/Madrid`. La edad del perfil es la edad al empezar.
+- El diario registra información: no realiza diagnósticos, recomendaciones clínicas ni cálculos automáticos de objetivos de peso.
+
+## Pruebas y estado
+
+La batería actual contiene **16 pruebas**: fechas y límites de quincena, semanas naturales y revisiones parciales, días distintos de deporte, gráfica, escape de texto y recuperación de fallos de transporte al editar objetivos.
+
+Se han comprobado la construcción de producción y, en el navegador publicado con datos de prueba, el registro de deporte fuera del inicio de quincena, la navegación del visor, la ampliación, Escape y la conservación de notas sin guardar. La función de objetivos también se ha probado dentro de una transacción revertida: acceso del propietario, rechazo de otra identidad y falta de permiso anónimo.
+
+La prueba de escritorio no sustituye una revisión completa en dispositivos físicos ni una auditoría integral de seguridad. No se ha utilizado la contraseña del propietario para validar su cuenta.
+
+## Límites y mantenimiento
+
+Se necesita internet para guardar. Un error de transporte puede impedir confirmar una escritura; se conserva el formulario y se informa del problema. La alternativa POST solo se aplica a la edición de objetivos ante un fallo de red; no resuelve una caída general de Supabase ni se utiliza para ocultar errores de permisos.
+
+No se incluyen trabajo sin conexión, sincronización en segundo plano, notificaciones, copia completa de imágenes ni una APK. El soporte HEIC depende del navegador; si no puede decodificarlo, utiliza JPEG o PNG. Las cuotas, la disponibilidad y las copias de seguridad dependen de Supabase.
+
+Antes de ampliar funciones, revisa el esquema, añade pruebas para las reglas afectadas, ejecuta los controles existentes y verifica la web publicada. Conserva por separado las copias de los registros y las fotografías.
