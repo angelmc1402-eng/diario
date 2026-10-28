@@ -131,3 +131,17 @@ Las fichas muestran los valores de la quincena seleccionada. Al elegir una ficha
 El límite de entrada de 500 cm es una validación técnica contra errores de escritura, no un umbral clínico. No se asignan rangos saludables ni objetivos automáticos.
 
 El esquema para esta sección está en `supabase/measurements.sql` y se incluye en `supabase/setup.sql` para instalaciones nuevas. Ya se ha aplicado al proyecto original. La tabla tiene RLS, cuatro políticas de propietario y una clave única por usuario y fecha inicial de quincena. El guardado utiliza upsert por POST y confirma que se devuelve un identificador.
+
+## Semanas, expertos e informes
+
+En el alta del perfil y en Ajustes se elige entre quincenas de revisión (14 días desde el inicio) y semanas naturales (lunes a domingo). El cambio conserva el historial. Medidas admite conjuntos de 7 o 14 días con gráficas compartidas.
+
+Cada comida incluye un desplegable **Opciones para expertos**: cantidad total en gramos, kcal estimadas, proteína, hidratos, grasas, fibra, sal y origen de los datos. Son valores del total de la comida, introducidos manualmente; las fotografías no se analizan. Ejercicio permite tipo, grupos musculares, kcal estimadas y origen, distancia, pasos, series iguales, repeticiones, carga y esfuerzo percibido 1–10. Para distintas cargas se registra cada ejercicio o bloque por separado.
+
+Objetivos ofrece caminar, ejercicio, agua, lectura y personalizado. Se ajustan cantidad, fechas, frecuencia y notas. Caminar suma minutos clasificados como caminar; un total manual sustituye el cálculo de ese día. Ejercicio cuenta días distintos de lunes a domingo, incluso fuera de la quincena. Los totales por periodo mantienen las fechas originales al cambiar de modo.
+
+**Informe nutricional**, debajo de Medidas, muestra semanas, gráfica de kcal o proteína, medias y detalle editable por día. Cada media divide entre los días con datos de esa métrica y muestra su cobertura. Los valores vacíos no son cero. La opción de días completos exige confirmar el día y completar cada comida o sesión para la métrica consultada. Un descanso confirmado sin sesiones cuenta como cero gasto de ejercicio; un día sin registrar no. El gasto no incluye metabolismo basal ni actividad no anotada.
+
+**Entrenamiento** agrupa tipos y músculos, muestra las sesiones y las comidas de la misma fecha, y compara proteína anotada en días con actividad y descanso confirmado. La carga externa (series × repeticiones × kg) solo usa bloques de fuerza completos. Estas comparaciones no estiman necesidades ni prueban efectos clínicos.
+
+La guía aparece al entrar por primera vez y se puede repetir desde Ayuda. Los datos nuevos están protegidos por las mismas políticas de propietario. La ampliación del esquema está en `supabase/advanced-journal.sql`; incluye `day_status` y la función segura `update_diary_goal_v2`. La batería ampliada contiene **37 pruebas**.

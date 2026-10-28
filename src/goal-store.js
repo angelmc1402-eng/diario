@@ -10,7 +10,7 @@ export async function updateGoal(client, id, values) {
   if (result.error && isNetworkError(result.error)) {
     // POST provides an alternative to PATCH without bypassing the caller's RLS.
     try {
-      result = await client.rpc('update_diary_goal', {
+      result = values.template ? await client.rpc('update_diary_goal_v2',{p_id:id,p_goal:values}).select('id').single() : await client.rpc('update_diary_goal', {
         p_id: id,
         p_title: values.title,
         p_start_date: values.start_date,
