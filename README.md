@@ -165,3 +165,14 @@ El despliegue detecta automáticamente la ruta configurada en GitHub Pages. En S
 En Supabase → Authentication → URL Configuration, usa `https://goingfit.es/` como Site URL y añade esa misma URL exacta a Redirect URLs. Si se sirve también www, añade `https://www.goingfit.es/`. Puedes conservar temporalmente la URL anterior de GitHub Pages. Al cambiar de origen hay que iniciar sesión otra vez; los registros y las fotografías permanecen en el mismo proyecto Supabase. No hace falta cambiar la URL del proyecto ni su clave publicable.
 
 Las fotos de comidas y Mi cuerpo se redimensionan antes de subirlas a un máximo de 1600 px en su lado mayor y se convierten a JPEG con calidad 0,82. El tamaño final depende de la imagen; no existe un peso fijo garantizado por fotografía.
+
+
+## Foto principal y PDF para la visita
+
+En cada comida se puede elegir la foto principal entre las existentes o las nuevas, antes de guardar. Se conserva como la primera ruta del álbum; no duplica archivos ni requiere cambios de esquema. Las notas y la selección de archivos no se pierden al cambiar la portada o abrir el visor.
+
+Al final del Resumen hay un botón «Exportar semana/quincena en PDF» para el periodo seleccionado. El informe se genera en el dispositivo e incluye perfil, resumen, gráficas, medias con cobertura, objetivos y avances, hitos, pesos, medidas, citas y detalle diario. Se identifican el último peso y las medidas anteriores usados como referencia y las sesiones de las semanas limítrofes que cuentan para los objetivos. Los días sin registros figuran en el resumen, sin generar una página vacía por fecha.
+
+Se puede incluir o excluir fotos de comidas y datos avanzados. Las fotos y notas de Mi cuerpo están excluidas por defecto y requieren selección expresa. Las imágenes se incrustan en el PDF, sin publicar rutas privadas ni enlaces firmados. Si alguna imagen no se descarga, se informa al final del documento. La exportación no estima nutrientes a partir de fotos ni sustituye una valoración profesional.
+
+La biblioteca PDF se carga solo al exportar y está fijada a jsPDF 4.2.1. Las 52 pruebas incluyen el orden de portadas, fechas, referencias, semanas naturales, datos incompletos, exclusión corporal y documentos con notas largas.
