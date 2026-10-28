@@ -145,3 +145,14 @@ Objetivos ofrece caminar, ejercicio, agua, lectura y personalizado. Se ajustan c
 **Entrenamiento** agrupa tipos y músculos, muestra las sesiones y las comidas de la misma fecha, y compara proteína anotada en días con actividad y descanso confirmado. La carga externa (series × repeticiones × kg) solo usa bloques de fuerza completos. Estas comparaciones no estiman necesidades ni prueban efectos clínicos.
 
 La guía aparece al entrar por primera vez y se puede repetir desde Ayuda. Los datos nuevos están protegidos por las mismas políticas de propietario. La ampliación del esquema está en `supabase/advanced-journal.sql`; incluye `day_status` y la función segura `update_diary_goal_v2`. La batería ampliada contiene **37 pruebas**.
+
+
+## Mi cuerpo, comidas y demostración ampliada
+
+Mi cuerpo guarda registros con fecha y fotos frontal, lateral y trasera. Basta una vista; se pueden editar, comparar fechas y ampliar en el visor. La tabla `body_photos` y el bucket privado `cuerpo` aplican políticas de propietario; las imágenes se comprimen y se consultan con enlaces firmados temporales. La exportación JSON incluye rutas, no copias de los archivos.
+
+Las comidas admiten almuerzo y hora local opcional (Europe/Madrid, sin convertirla en un instante UTC). Los objetivos ofrecen «Mínimo», con cantidades, y «Solo una vez al día», con casilla y confirmación. Los objetivos diarios antiguos de una vez conservan ese comportamiento. Los botones Editar de las tarjetas de objetivos comparten el mismo pie.
+
+En la prueba sin iniciar sesión, «Previsualizar datos de prueba» genera 120 días ficticios: cinco comidas diarias con nutrientes y horas, sesiones, objetivos, marcas, pesajes, medidas, hitos y registros corporales ilustrados. Se guarda exclusivamente en memoria, sin peticiones de escritura ni lectura de imágenes externas; al recargar desaparece. No contiene registros reales ni recomendaciones personales. El botón permite restablecer la demostración.
+
+El tema claro, oscuro o del dispositivo se conserva en este navegador, incluida la pantalla de acceso. El favicon es una manzana verde en SVG. La migración adicional está en `supabase/body-and-habits.sql`. La batería ampliada contiene 44 pruebas.

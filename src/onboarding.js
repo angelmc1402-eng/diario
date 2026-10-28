@@ -1,6 +1,6 @@
 import {escapeHtml as e} from './domain.js';
 export const TOUR=[
- {view:'summary',target:'.day-list',title:'Tu registro diario',text:'Abre un día. Puedes añadir desayuno, comida, cena y merienda, con nota o fotografías.'},
+ {view:'summary',target:'.day-list',title:'Tu registro diario',text:'Abre un día. Puedes añadir desayuno, almuerzo, comida, merienda y cena, con nota o fotografías.'},
  {view:'summary',target:'.exercise-list',title:'Actividad y opciones avanzadas',text:'Añade una sesión de deporte. En comidas y ejercicio encontrarás «Opciones para expertos», siempre opcional.'},
  {view:'goals',target:'.page-head',title:'Objetivos a tu medida',text:'Pulsa «Añadir objetivo», elige una sugerencia y cambia la cantidad. Puedes registrar avances desde cada día.'},
  {view:'measurements',target:'.measurement-cards',title:'Peso y medidas',text:'En Peso y Medidas puedes registrar tu evolución. Basta con rellenar los datos que conozcas.'},
@@ -9,6 +9,7 @@ export const TOUR=[
  {view:'settings',target:'.work-mode',title:'Elige cómo organizarte',text:'Cambia entre quincenas de revisión y semanas naturales. Puedes repetir esta guía desde el botón Ayuda.'},
 ];
 export const HELP={
+ body:['Mi cuerpo','Añade un registro con fecha y una o varias fotografías: frontal, lateral y trasera. Se guardan en un contenedor privado de tu cuenta. Puedes compararlas entre fechas y ampliar cada imagen. Procura usar la misma postura, luz y distancia. La exportación JSON incluye las rutas, no los archivos de imagen.'],
  summary:['Registro diario','Abre un día para añadir o editar comidas y deporte. Las fotos se amplían dentro del diario. Los campos de expertos son opcionales y deben corresponder al total de la comida o sesión.'],
  goals:['Objetivos','Las sugerencias permiten elegir cantidad y frecuencia. Caminar puede usar los minutos de sesiones clasificadas como caminar. Un total manual de una fecha sustituye ese cálculo. El ejercicio semanal cuenta días distintos de lunes a domingo. Agua y lectura se anotan manualmente.'],
  weights:['Peso','Añade la fecha y el peso. La gráfica utiliza los registros disponibles; una fecha sin dato no representa cero.'],

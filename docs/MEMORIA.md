@@ -247,3 +247,14 @@ Una guía de siete pasos aparece al abrir por primera vez el diario. Resalta las
 ### Verificación ampliada
 
 Se ejecutaron 37 pruebas automáticas y la compilación de producción. Las nuevas pruebas cubren semanas entre años, medidas de siete días, cantidades vacías frente a cero, cobertura de medias, filtro completo, descanso confirmado, objetivos y campos de entrenamiento. Una transacción revertida verificó escritura del propietario, RPC avanzada, aislamiento entre usuarios, coexistencia de medidas y rechazo de kcal negativas. En el navegador publicado se comprobaron los nuevos formularios, cambio de modo, informes, objetivos y guía usando datos de demostración. No se utilizó la contraseña del titular.
+
+
+## Mi cuerpo, casillas y demostración ampliada
+
+Mi cuerpo guarda registros con fecha y fotos frontal, lateral y trasera. Basta una vista; se pueden editar, comparar fechas y ampliar en el visor. La tabla `body_photos` y el bucket privado `cuerpo` aplican políticas de propietario; las imágenes se comprimen y se consultan con enlaces firmados temporales. La exportación JSON incluye rutas, no copias de los archivos.
+
+Las comidas admiten almuerzo y hora local opcional (Europe/Madrid, sin convertirla en un instante UTC). Los objetivos ofrecen «Mínimo», con cantidades, y «Solo una vez al día», con casilla y confirmación. Los objetivos diarios antiguos de una vez conservan ese comportamiento. Los botones Editar de las tarjetas de objetivos comparten el mismo pie.
+
+En la prueba sin iniciar sesión, «Previsualizar datos de prueba» genera 120 días ficticios: cinco comidas diarias con nutrientes y horas, sesiones, objetivos, marcas, pesajes, medidas, hitos y registros corporales ilustrados. Se guarda exclusivamente en memoria, sin peticiones de escritura ni lectura de imágenes externas; al recargar desaparece. No contiene registros reales ni recomendaciones personales. El botón permite restablecer la demostración.
+
+El tema claro, oscuro o del dispositivo se conserva en este navegador, incluida la pantalla de acceso. El favicon es una manzana verde en SVG. La migración adicional está en `supabase/body-and-habits.sql`. La batería ampliada contiene 44 pruebas.
