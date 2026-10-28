@@ -61,3 +61,4 @@ body.viewer-open{overflow:hidden}.photo-viewer{position:fixed;inset:0;margin:0;w
 .measurement-chart{overflow:visible}
 @media(min-width:761px){.measurement-card-note,.measurement-chart-note,.measurement-unit,.measurement-insight>p,.measurement-insight dl{font-size:12px}.measurement-table td{font-size:13px}.measurement-table td:first-child strong{font-size:12px}}
 @media(max-width:760px){.measurement-chart text{font-size:22px}}
+.measurement-insight>.eyebrow,.measurement-insight-label{display:block}
