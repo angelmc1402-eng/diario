@@ -1,6 +1,6 @@
 # Diario
 
-Diario personal de comidas, actividad física, objetivos, hitos, peso y citas. Interfaz en español para ordenador y móvil, con datos privados en Supabase y publicación en GitHub Pages.
+Diario personal de comidas, actividad física, objetivos, hitos, peso, medidas corporales y citas. Interfaz en español para ordenador y móvil, con datos privados en Supabase y publicación en GitHub Pages.
 
 **Web:** [angelmc1402-eng.github.io/diario](https://angelmc1402-eng.github.io/diario/)  
 **Autor del proyecto:** Ángel Moreno  
@@ -22,6 +22,7 @@ Diario personal de comidas, actividad física, objetivos, hitos, peso y citas. I
 - Varias sesiones de deporte al día, con duración y nota opcionales.
 - Objetivos diarios, de deporte semanal o con marcas manuales. Se pueden copiar a la siguiente quincena sin sus marcas.
 - Hitos fechados, registro de peso con gráfica, citas y exportación JSON.
+- Medidas corporales por quincena: cintura, cadera, pecho, brazo y muslo, con fichas, gráfica por tipo, historial y ayuda breve.
 - Edición y eliminación de registros desde móvil u ordenador.
 - Menú lateral en escritorio, menú plegable en móvil y tamaños de texto mayores en escritorio para navegación y datos secundarios.
 
@@ -40,6 +41,7 @@ Aplicación estática con JavaScript, HTML y CSS. Vite construye la web; Supabas
 | Archivo | Responsabilidad |
 | --- | --- |
 | `src/main.js` | Interfaz, sesión, formularios y operaciones del diario |
+| `src/measurements.js` | Validación, series y vista de medidas corporales |
 | `src/domain.js` | Fechas, quincenas, semanas, recuentos y gráfica |
 | `src/goal-store.js` | Guardado de objetivos y alternativa ante errores de red |
 | `src/photo-viewer.js` | Visor de imágenes que conserva el formulario |
@@ -70,7 +72,7 @@ npm run preview
 
 ## Configurar Supabase
 
-En un proyecto nuevo, ejecuta `supabase/setup.sql` desde SQL Editor. Crea ocho tablas: `profiles`, `meals`, `exercise`, `goals`, `goal_checks`, `milestones`, `weights` y `appointments`; activa RLS y crea el contenedor privado `comidas` con sus políticas.
+En un proyecto nuevo, ejecuta `supabase/setup.sql` desde SQL Editor. Crea nueve tablas: `profiles`, `meals`, `exercise`, `goals`, `goal_checks`, `milestones`, `weights`, `measurements` y `appointments`; activa RLS y crea el contenedor privado `comidas` con sus políticas.
 
 En un proyecto que ya tiene las tablas, no recrees ni borres los datos para actualizar la web. La función de recuperación del guardado de objetivos está en `supabase/goal-update.sql` y ya se ha aplicado al proyecto original.
 
@@ -106,7 +108,7 @@ El workflow ajusta la ruta base al nombre del repositorio. No combines la public
 
 ## Pruebas y estado
 
-La batería actual contiene **16 pruebas**: fechas y límites de quincena, semanas naturales y revisiones parciales, días distintos de deporte, gráfica, escape de texto y recuperación de fallos de transporte al editar objetivos.
+La batería actual contiene **24 pruebas**: fechas y límites de quincena, semanas naturales y revisiones parciales, días distintos de deporte, gráfica, escape de texto, recuperación de fallos de transporte al editar objetivos y validación de medidas, fechas y series con datos incompletos.
 
 Se han comprobado la construcción de producción y, en el navegador publicado con datos de prueba, el registro de deporte fuera del inicio de quincena, la navegación del visor, la ampliación, Escape y la conservación de notas sin guardar. La función de objetivos también se ha probado dentro de una transacción revertida: acceso del propietario, rechazo de otra identidad y falta de permiso anónimo.
 
@@ -119,3 +121,13 @@ Se necesita internet para guardar. Un error de transporte puede impedir confirma
 No se incluyen trabajo sin conexión, sincronización en segundo plano, notificaciones, copia completa de imágenes ni una APK. El soporte HEIC depende del navegador; si no puede decodificarlo, utiliza JPEG o PNG. Las cuotas, la disponibilidad y las copias de seguridad dependen de Supabase.
 
 Antes de ampliar funciones, revisa el esquema, añade pruebas para las reglas afectadas, ejecuta los controles existentes y verifica la web publicada. Conserva por separado las copias de los registros y las fotografías.
+
+## Medidas corporales
+
+La sección **Medidas** aparece debajo de Peso. Cada usuario puede guardar un conjunto por quincena con fecha real de medición dentro de ese periodo. Incluye cintura, cadera, pecho, brazo y muslo, en centímetros y con un decimal. Basta con rellenar una medida; se pueden completar o corregir las demás después.
+
+Las fichas muestran los valores de la quincena seleccionada. Al elegir una ficha cambia la gráfica de ese contorno. El historial conserva todos los periodos y las gráficas omiten los campos vacíos sin interpretarlos como cero. Si se salta una quincena, la separación temporal se conserva. Se pueden editar y eliminar los registros; también se incluyen en la exportación JSON.
+
+El límite de entrada de 500 cm es una validación técnica contra errores de escritura, no un umbral clínico. No se asignan rangos saludables ni objetivos automáticos.
+
+El esquema para esta sección está en `supabase/measurements.sql` y se incluye en `supabase/setup.sql` para instalaciones nuevas. Ya se ha aplicado al proyecto original. La tabla tiene RLS, cuatro políticas de propietario y una clave única por usuario y fecha inicial de quincena. El guardado utiliza upsert por POST y confirma que se devuelve un identificador.

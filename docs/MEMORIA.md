@@ -51,6 +51,10 @@ Cada día ofrece desayuno, comida y cena. La merienda se añade cuando se necesi
 
 Al pulsar una fotografía se abre un diálogo sobre la página. Permite avanzar o retroceder, ampliar y ajustar la imagen, y cerrar con el botón o Escape. El formulario permanece montado detrás del visor, por lo que las notas y los archivos pendientes no se pierden al cerrarlo.
 
+### Medidas por quincena
+
+La sección Medidas, debajo de Peso, permite registrar cintura, cadera, pecho, brazo y muslo en centímetros. Todos los campos son opcionales salvo que debe existir al menos una medida. Cada ficha selecciona su gráfica; los huecos se omiten sin convertirlos en cero. Hay historial, edición y ayuda para mantener el mismo criterio de medición.
+
 ### Legibilidad y accesibilidad
 
 La navegación de escritorio pasa a 15 px y la mayor parte de los textos secundarios a 12 o 13 px. Se oscurecen etiquetas y metadatos, se amplía el lateral cuando hace falta y se mantiene la adaptación móvil. Hay etiquetas de formulario, estados de foco y reducción de movimiento; no se afirma una certificación completa de accesibilidad.
@@ -65,6 +69,7 @@ GitHub Pages entrega los archivos al navegador. El navegador utiliza Supabase Au
 | --- | --- |
 | main.js | Pantallas, sesión, formularios y coordinación de operaciones. |
 | domain.js | Fechas, periodos, semanas, recuentos y puntos de la gráfica. |
+| measurements.js | Validación, series con campos opcionales y vista de medidas. |
 | goal-store.js | Edición confirmada y alternativa ante fallo de transporte. |
 | photo-viewer.js | Diálogo de imágenes independiente del formulario. |
 | style.css | Diseño adaptable, contraste y tamaños tipográficos. |
@@ -88,11 +93,12 @@ La interfaz organiza la experiencia, las funciones de dominio definen las reglas
 | goal_checks | Marca por objetivo y fecha, vinculada al mismo propietario. |
 | milestones | Hito, periodo, nota y fecha de cumplimiento opcional. |
 | weights | Peso, fecha y nota; un pesaje por usuario y día. |
+| measurements | Cinco contornos opcionales, fecha y nota; un conjunto por usuario y quincena. |
 | appointments | Título, instante de la cita y nota. |
 
 ### Acceso por propietario
 
-Las ocho tablas tienen Row Level Security. Las políticas comparan auth.uid() con user_id para leer, crear, editar y borrar. Las consultas del cliente también filtran por usuario, pero la barrera de autorización es RLS. La función alternativa para objetivos usa security invoker y no puede saltarse estas políticas.
+Las nueve tablas tienen Row Level Security. Las políticas comparan auth.uid() con user_id para leer, crear, editar y borrar. Las consultas del cliente también filtran por usuario, pero la barrera de autorización es RLS. La función alternativa para objetivos usa security invoker y no puede saltarse estas políticas.
 
 ### Fotografías privadas
 
@@ -163,7 +169,7 @@ En Supabase deben existir el esquema y sus políticas, un usuario confirmado, el
 
 | Comprobación | Evidencia y alcance |
 | --- | --- |
-| Pruebas automáticas | 16 casos de dominio y transporte: fechas, semanas, recuentos, gráfica, escape y edición de objetivos. |
+| Pruebas automáticas | 24 casos de dominio, transporte y medidas: fechas, semanas, recuentos, gráfica, escape, edición de objetivos y validación de series incompletas de medidas. |
 | Construcción | Compilación de producción comprobada y proceso ejecutado en GitHub Actions. |
 | Navegador publicado | Prueba con datos en memoria: deporte del martes previo, visor, navegación, ampliación y Escape. |
 | Formulario | Una nota sin guardar permanece después de abrir y cerrar el visor. |
