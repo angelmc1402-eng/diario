@@ -93,12 +93,13 @@ La interfaz organiza la experiencia, las funciones de dominio definen las reglas
 | goal_checks | Marca por objetivo y fecha, vinculada al mismo propietario. |
 | milestones | Hito, periodo, nota y fecha de cumplimiento opcional. |
 | weights | Peso, fecha y nota; un pesaje por usuario y día. |
-| measurements | Cinco contornos opcionales, fecha y nota; un conjunto por usuario y quincena. |
+| measurements | Cinco contornos opcionales, fecha y nota; un conjunto por usuario, inicio y duración de 7 o 14 días. |
+| day_status | Confirmación diaria de alimentación y ejercicio completos. |
 | appointments | Título, instante de la cita y nota. |
 
 ### Acceso por propietario
 
-Las nueve tablas tienen Row Level Security. Las políticas comparan auth.uid() con user_id para leer, crear, editar y borrar. Las consultas del cliente también filtran por usuario, pero la barrera de autorización es RLS. La función alternativa para objetivos usa security invoker y no puede saltarse estas políticas.
+Las diez tablas tienen Row Level Security. Las políticas comparan auth.uid() con user_id para leer, crear, editar y borrar. Las consultas del cliente también filtran por usuario, pero la barrera de autorización es RLS. La función alternativa para objetivos usa security invoker y no puede saltarse estas políticas.
 
 ### Fotografías privadas
 
@@ -169,7 +170,7 @@ En Supabase deben existir el esquema y sus políticas, un usuario confirmado, el
 
 | Comprobación | Evidencia y alcance |
 | --- | --- |
-| Pruebas automáticas | 24 casos de dominio, transporte y medidas: fechas, semanas, recuentos, gráfica, escape, edición de objetivos y validación de series incompletas de medidas. |
+| Pruebas automáticas | 37 casos de dominio, transporte, medidas e informes: fechas, semanas, recuentos, gráfica, escape, edición de objetivos y validación de series incompletas de medidas. |
 | Construcción | Compilación de producción comprobada y proceso ejecutado en GitHub Actions. |
 | Navegador publicado | Prueba con datos en memoria: deporte del martes previo, visor, navegación, ampliación y Escape. |
 | Formulario | Una nota sin guardar permanece después de abrir y cerrar el visor. |
@@ -207,17 +208,42 @@ Se ha obtenido una base funcional publicada para registrar y revisar hábitos de
 
 Estado documentado el 28 de octubre de 2026. Las versiones corresponden a las dependencias instaladas. Los ejemplos de calendario son ilustrativos y no reproducen registros personales.
 
+## 09 / Semanas y registro avanzado
 
-## Ampliación: semanas, nutrición y entrenamiento
+### Modo de trabajo
 
-En el alta del perfil y en Ajustes se elige entre quincenas de revisión (14 días desde el inicio) y semanas naturales (lunes a domingo). El cambio conserva el historial. Medidas admite conjuntos de 7 o 14 días con gráficas compartidas.
+Al configurar la cuenta y en Ajustes se puede elegir entre quincenas de revisión con nutricionista o médico y semanas de control personal. La semana natural empieza el lunes y termina el domingo. Cambiar de modo conserva las comidas, las sesiones, los objetivos y el historial. Las medidas admiten conjuntos de siete o catorce días que pueden coexistir.
 
-Cada comida incluye un desplegable **Opciones para expertos**: cantidad total en gramos, kcal estimadas, proteína, hidratos, grasas, fibra, sal y origen de los datos. Son valores del total de la comida, introducidos manualmente; las fotografías no se analizan. Ejercicio permite tipo, grupos musculares, kcal estimadas y origen, distancia, pasos, series iguales, repeticiones, carga y esfuerzo percibido 1–10. Para distintas cargas se registra cada ejercicio o bloque por separado.
+### Opciones para expertos en comidas
 
-Objetivos ofrece caminar, ejercicio, agua, lectura y personalizado. Se ajustan cantidad, fechas, frecuencia y notas. Caminar suma minutos clasificados como caminar; un total manual sustituye el cálculo de ese día. Ejercicio cuenta días distintos de lunes a domingo, incluso fuera de la quincena. Los totales por periodo mantienen las fechas originales al cambiar de modo.
+El formulario básico sigue siendo breve. Un desplegable opcional permite introducir cantidad total en gramos, kcal estimadas, proteína, hidratos, grasas, fibra, sal y origen de los datos. Las cifras corresponden a toda la comida; no se calculan a partir de la fotografía ni se interpretan como valores por cien gramos.
 
-**Informe nutricional**, debajo de Medidas, muestra semanas, gráfica de kcal o proteína, medias y detalle editable por día. Cada media divide entre los días con datos de esa métrica y muestra su cobertura. Los valores vacíos no son cero. La opción de días completos exige confirmar el día y completar cada comida o sesión para la métrica consultada. Un descanso confirmado sin sesiones cuenta como cero gasto de ejercicio; un día sin registrar no. El gasto no incluye metabolismo basal ni actividad no anotada.
+### Opciones para expertos en ejercicio
 
-**Entrenamiento** agrupa tipos y músculos, muestra las sesiones y las comidas de la misma fecha, y compara proteína anotada en días con actividad y descanso confirmado. La carga externa (series × repeticiones × kg) solo usa bloques de fuerza completos. Estas comparaciones no estiman necesidades ni prueban efectos clínicos.
+Se puede clasificar la sesión como caminar, cardio, fuerza, movilidad, deporte, mixta u otra. Los datos avanzados incluyen grupos musculares, gasto estimado y origen, distancia, pasos, series iguales, repeticiones, carga por repetición y esfuerzo percibido de uno a diez. Para distintos ejercicios o cargas se crean registros separados. Dejar un campo vacío expresa dato desconocido.
 
-La guía aparece al entrar por primera vez y se puede repetir desde Ayuda. Los datos nuevos están protegidos por las mismas políticas de propietario. La ampliación del esquema está en `supabase/advanced-journal.sql`; incluye `day_status` y la función segura `update_diary_goal_v2`. La batería ampliada contiene **37 pruebas**.
+### Objetivos sugeridos y personalizados
+
+Las sugerencias incluyen caminar minutos, hacer ejercicio días por semana, beber litros de agua y leer minutos. La cantidad se puede editar y no se prescribe una cantidad de agua. Personalizado permite título, unidad, frecuencia, fechas y notas. El ejercicio cuenta días distintos; caminar puede sumar minutos de las sesiones clasificadas o de registros antiguos reconocibles. El total manual sustituye el automático del día. Los totales de un periodo mantienen sus fechas al cambiar de vista.
+
+## 10 / Informes, ayuda y verificación
+
+### Informe nutricional semanal
+
+Debajo de Medidas aparece un informe por semanas naturales con gráfica de kcal o proteína y un detalle editable de cada día. Muestra medias de kcal de comidas, gramos de proteína y kcal de ejercicio. Cada métrica divide entre los días que tienen cifras y muestra su cobertura sobre siete días. Un registro parcial no representa toda la alimentación.
+
+### Días completos y descansos
+
+El filtro de días completos exige marcar el día y disponer de esa métrica en todas las comidas o sesiones registradas. Un descanso confirmado sin sesiones aporta cero gasto de ejercicio. Un día sin datos no aporta cero. El gasto no incluye metabolismo basal ni otras actividades. No se calcula déficit energético ni se deducen necesidades nutricionales.
+
+### Entrenamiento y alimentación
+
+Entrenamiento agrupa tipos de sesión y músculos indicados. Relaciona comida y ejercicio por fecha y compara proteína anotada en días activos y de descanso confirmado, mostrando el número de días disponibles. La carga externa acumulada usa series por repeticiones por kg solo en bloques de fuerza completos. Las comparaciones son descriptivas y no prueban causas ni efectos.
+
+### Guía y ayuda
+
+Una guía de siete pasos aparece al abrir por primera vez el diario. Resalta las zonas principales, permite avanzar, volver u omitir y guarda su finalización en el perfil. Ayuda explica la sección actual y permite repetir el recorrido.
+
+### Verificación ampliada
+
+Se ejecutaron 37 pruebas automáticas y la compilación de producción. Las nuevas pruebas cubren semanas entre años, medidas de siete días, cantidades vacías frente a cero, cobertura de medias, filtro completo, descanso confirmado, objetivos y campos de entrenamiento. Una transacción revertida verificó escritura del propietario, RPC avanzada, aislamiento entre usuarios, coexistencia de medidas y rechazo de kcal negativas. En el navegador publicado se comprobaron los nuevos formularios, cambio de modo, informes, objetivos y guía usando datos de demostración. No se utilizó la contraseña del titular.
