@@ -95,7 +95,7 @@ Utiliza únicamente una clave publicable en el cliente. La contraseña de la bas
 3. Sube los cambios a `main`. **Publicar diario** instalará las dependencias, ejecutará las pruebas, construirá `dist` y lo desplegará.
 4. Comprueba que el proceso termina correctamente. También puede ejecutarse desde **Run workflow**.
 
-El workflow ajusta la ruta base al nombre del repositorio. No combines la publicación desde una rama con este workflow: la primera puede servir el HTML fuente sin construir y dejar la página vacía. Los artefactos incluyen el número de intento para permitir relanzamientos sin colisiones.
+El workflow obtiene la ruta base de GitHub Pages antes de compilar: `/diario/` para el subdirectorio del repositorio o `/` para un dominio propio. No combines la publicación desde una rama con este workflow: la primera puede servir el HTML fuente sin construir y dejar la página vacía. Los artefactos incluyen el número de intento para permitir relanzamientos sin colisiones.
 
 ## Datos y privacidad
 
@@ -156,3 +156,12 @@ Las comidas admiten almuerzo y hora local opcional (Europe/Madrid, sin convertir
 En la prueba sin iniciar sesión, «Previsualizar datos de prueba» genera 120 días ficticios: cinco comidas diarias con nutrientes y horas, sesiones, objetivos, marcas, pesajes, medidas, hitos y registros corporales ilustrados. Se guarda exclusivamente en memoria, sin peticiones de escritura ni lectura de imágenes externas; al recargar desaparece. No contiene registros reales ni recomendaciones personales. El botón permite restablecer la demostración.
 
 El tema claro, oscuro o del dispositivo se conserva en este navegador, incluida la pantalla de acceso. El favicon es una manzana verde en SVG. La migración adicional está en `supabase/body-and-habits.sql`. La batería ampliada contiene 44 pruebas.
+
+
+## Dominio goingfit.es
+
+El despliegue detecta automáticamente la ruta configurada en GitHub Pages. En Settings → Pages, selecciona GitHub Actions como Source y configura goingfit.es en Custom domain. Una vez que el DNS apunte a GitHub y el certificado esté disponible, activa Enforce HTTPS y vuelve a ejecutar Publicar diario si el cambio de dominio no ha generado una publicación nueva.
+
+En Supabase → Authentication → URL Configuration, usa `https://goingfit.es/` como Site URL y añade esa misma URL exacta a Redirect URLs. Si se sirve también www, añade `https://www.goingfit.es/`. Puedes conservar temporalmente la URL anterior de GitHub Pages. Al cambiar de origen hay que iniciar sesión otra vez; los registros y las fotografías permanecen en el mismo proyecto Supabase. No hace falta cambiar la URL del proyecto ni su clave publicable.
+
+Las fotos de comidas y Mi cuerpo se redimensionan antes de subirlas a un máximo de 1600 px en su lado mayor y se convierten a JPEG con calidad 0,82. El tamaño final depende de la imagen; no existe un peso fijo garantizado por fotografía.
