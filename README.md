@@ -191,3 +191,16 @@ La cuenta propietaria puede abrir **Administración** en el menú lateral para i
 Despliegue: ejecutar `supabase/admin-invitations.sql` una sola vez, asignar el propietario verificado en `diary_admins` y desplegar `supabase/functions/admin-invitations/index.ts` con verificación JWT activada. No exponer funciones administrativas ni claves de servicio en Vite. Para revocar este rol basta retirar su fila de `diary_admins`; se comprueba en cada llamada al servidor.
 
 Validación: 62 pruebas unitarias, compilación de producción, comprobación real de RLS/permisos y rechazo de llamadas sin autenticar. Las pruebas de invitación usan un proveedor simulado: no envían correos ni crean cuentas a terceros.
+
+### Configuración de las invitaciones por correo
+
+En Supabase → Authentication → URL Configuration:
+
+- **Site URL:** `https://goingfit.es`
+- **Redirect URLs:** `https://goingfit.es/` y `https://goingfit.es/?invitation=1`.
+
+En Authentication → Email Templates → Invite user, usar `supabase/templates/invite.html`. Su enlace apunta directamente a la pantalla de aceptación de GoingFit con `TokenHash`; no lo verifica al abrir la página. Esto evita que una previsualización del correo consuma automáticamente `ConfirmationURL`. La sesión solo se crea al pulsar **Aceptar invitación**. No usar `localhost` como URL del sitio desplegado ni activar seguimiento de clics que modifique estos enlaces.
+
+Los hashes actuales de Supabase Auth son SHA-224 (56 caracteres hexadecimales). Cliente y servidor admiten ese formato y el de 64 caracteres, y la validación real del token corresponde siempre a Supabase Auth. La prueba de regresión deriva un hash SHA-224 de datos ficticios usando el algoritmo del proveedor.
+
+Tras cambiar las URLs o la plantilla, crear una invitación nueva. Las invitaciones consumidas, caducadas o sustituidas no se pueden recuperar cambiando su URL. El código muestra un aviso claro cuando recibe `otp_expired` en el retorno de Auth.

@@ -43,7 +43,7 @@ export function createAdminHandler(deps){return async req=>{
     try{
       result=await deps.invite(input);
       // Never trust a caller-supplied redirect or return provider URLs / privileged tokens.
-      if(input.delivery==='link'&&!/^[0-9a-f]{64}$/i.test(result.tokenHash||''))throw Error('invalid_provider_response');
+      if(input.delivery==='link'&&!/^(?:[0-9a-f]{56}|[0-9a-f]{64})$/i.test(result.tokenHash||''))throw Error('invalid_provider_response');
     }catch(error){const [status,code,message]=invitationError(error);await deps.finish(input.requestId,{status:'failed',error_code:code}).catch(()=>{});return reply(status,{error:code,message});}
     const status=input.delivery==='email'?'email_sent':'link_created';
     // A send can succeed even if audit completion fails. Do not offer automatic retry.

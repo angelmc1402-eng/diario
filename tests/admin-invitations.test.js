@@ -1,8 +1,9 @@
 import test from 'node:test';
+import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {createAdminHandler,normalizeInvite} from '../supabase/functions/admin-invitations/handler.js';
-import {readInvitation,adminView} from '../src/admin.js';
-const id='b2653df9-eabc-40ba-9528-249b218f0f35',token='a'.repeat(64);
+import {readInvitation,readAuthCallbackError,adminView} from '../src/admin.js';
+const id='b2653df9-eabc-40ba-9528-249b218f0f35',token=createHash('sha224').update('friend@example.test000000').digest('hex');
 function fixture(overrides={}){
  const calls=[];const deps={authenticate:async()=>({id:'owner',user_metadata:{admin:true}}),isAdmin:async()=>true,
  history:async()=>[{email:'friend@example.test',status:'link_created'}],reserve:async x=>calls.push(['reserve',x]),
@@ -50,4 +51,14 @@ test('invitation callback parses fragment tokens without consuming them, and rec
 test('admin markup escapes addresses and private links and describes statuses accurately',()=>{
  const html=adminView({invitations:[{email:'<script>@example.test',created_at:'2026-10-30T12:00:00Z',status:'link_created'}],result:{email:'friend@example.test',status:'link_created',link:'https://goingfit.es/#invite_token='+token}});
  assert.ok(html.includes('&lt;script&gt;'));assert.ok(!html.includes('<script>'));assert.ok(html.includes('no si la persona ya ha entrado'));assert.ok(html.includes('readonly'));
+});
+
+test('accepts provider SHA-224 hashes and does not confuse callback failure with sign-in',()=>{
+ assert.equal(token.length,56);
+ assert.equal(readInvitation('https://goingfit.es/#invite_token='+token).token,token);
+ assert.equal(readInvitation('https://goingfit.es/#invite_token='+'a'.repeat(55)).invalid,true);
+ assert.equal(readInvitation('https://goingfit.es/#invite_token='+'g'.repeat(56)).invalid,true);
+ assert.match(readAuthCallbackError('https://goingfit.es/#error=access_denied&error_code=otp_expired&error_description=untrusted'),/ha caducado/);
+ assert.ok(!readAuthCallbackError('https://goingfit.es/#error=access_denied&error_description=<script>').includes('<script>'));
+ assert.equal(readAuthCallbackError('https://goingfit.es/#invite_token='+token),'');
 });
