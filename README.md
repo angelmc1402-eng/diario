@@ -176,3 +176,18 @@ Al final del Resumen hay un botón «Exportar semana/quincena en PDF» para el p
 Se puede incluir o excluir fotos de comidas y datos avanzados. Las fotos y notas de Mi cuerpo están excluidas por defecto y requieren selección expresa. Las imágenes se incrustan en el PDF, sin publicar rutas privadas ni enlaces firmados. Si alguna imagen no se descarga, se informa al final del documento. La exportación no estima nutrientes a partir de fotos ni sustituye una valoración profesional.
 
 La biblioteca PDF se carga solo al exportar y está fijada a jsPDF 4.2.1. Las 52 pruebas incluyen el orden de portadas, fechas, referencias, semanas naturales, datos incompletos, exclusión corporal y documentos con notas largas.
+
+
+## Administración e invitaciones
+
+La cuenta propietaria puede abrir **Administración** en el menú lateral para invitar por correo o crear un enlace privado de un solo uso. El destinatario acepta la invitación, elige su contraseña y configura su propio diario. No hay formulario de registro público.
+
+- `diary_admins` contiene los administradores. Un usuario autenticado solo puede consultar su propia pertenencia, sin insertarse ni cambiar permisos. El alta inicial del propietario se realiza aparte, tras verificar su cuenta existente; no se deduce del nombre, del correo enviado por el navegador ni de `user_metadata`.
+- La Edge Function `admin-invitations` valida la sesión con Auth y consulta el permiso actual en cada petición. La clave de servicio vive exclusivamente en el entorno de Supabase. El administrador no obtiene acceso a registros o fotos de otros diarios.
+- El historial guarda destinatario, fecha y resultado, sin enlaces ni tokens. «Correo enviado» y «Enlace creado» no significan que la invitación haya sido aceptada. Un resultado pendiente debe revisarse antes de repetirlo.
+- El envío por correo necesita un servicio SMTP adecuado y `https://goingfit.es/?invitation=1` entre las redirecciones permitidas en Auth. El enlace manual usa un token verificado por Auth desde el fragmento de `goingfit.es`, se retira de la URL al abrirlo y no necesita SMTP. Solo se verifica cuando el destinatario pulsa **Aceptar invitación**.
+- Una reserva atómica impide repetir una petición, limita cada administrador a 10 intentos por hora y 50 al día, y exige un minuto entre invitaciones a un mismo correo. No se reintentan envíos automáticamente.
+
+Despliegue: ejecutar `supabase/admin-invitations.sql` una sola vez, asignar el propietario verificado en `diary_admins` y desplegar `supabase/functions/admin-invitations/index.ts` con verificación JWT activada. No exponer funciones administrativas ni claves de servicio en Vite. Para revocar este rol basta retirar su fila de `diary_admins`; se comprueba en cada llamada al servidor.
+
+Validación: 62 pruebas unitarias, compilación de producción, comprobación real de RLS/permisos y rechazo de llamadas sin autenticar. Las pruebas de invitación usan un proveedor simulado: no envían correos ni crean cuentas a terceros.
