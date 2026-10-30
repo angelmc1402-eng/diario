@@ -20,7 +20,7 @@ export function invitationError(error){
 }
 export function createAdminHandler(deps){return async req=>{
   const headers={'Content-Type':'application/json','Cache-Control':'no-store','Referrer-Policy':'no-referrer','Vary':'Origin',
-    'Access-Control-Allow-Origin':ORIGIN,'Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info',
+    'Access-Control-Allow-Origin':ORIGIN,'Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
     'Access-Control-Allow-Methods':'POST, GET, OPTIONS'};
   const reply=(status,data)=>new Response(JSON.stringify(data),{status,headers});
   if(req.headers.get('origin')&&req.headers.get('origin')!==ORIGIN)return reply(403,{error:'origin_not_allowed',message:'Origen no permitido.'});
