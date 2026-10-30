@@ -204,3 +204,13 @@ En Authentication → Email Templates → Invite user, usar `supabase/templates/
 Los hashes actuales de Supabase Auth son SHA-224 (56 caracteres hexadecimales). Cliente y servidor admiten ese formato y el de 64 caracteres, y la validación real del token corresponde siempre a Supabase Auth. La prueba de regresión deriva un hash SHA-224 de datos ficticios usando el algoritmo del proveedor.
 
 Tras cambiar las URLs o la plantilla, crear una invitación nueva. Las invitaciones consumidas, caducadas o sustituidas no se pueden recuperar cambiando su URL. El código muestra un aviso claro cuando recibe `otp_expired` en el retorno de Auth.
+
+## Inicio personalizable
+
+**Resumen → Personalizar** permite elegir tres diseños: **Diario** (distribución original), **Hábitos** (objetivos y constancia) y **Evolución** (peso, gráficas y medidas). El primer alta del diario ofrece esas mismas tres opciones; las cuentas existentes conservan Diario hasta que elijan otra distribución.
+
+El diseño **Personalizado** permite mostrar u ocultar seis indicadores superiores, cambiar su orden y elegir entre nueve paneles. Cada panel puede moverse a la columna izquierda o derecha y ordenarse dentro de ella con botones accesibles. En ordenador se puede ampliar cualquiera de las columnas o equilibrarlas; en móvil se muestran primero los paneles de la izquierda y después los de la derecha. El PDF sigue disponible al final del resumen y Registrar hoy permite añadir comidas o ejercicio incluso con el diario oculto.
+
+Los cambios se aplican con **Guardar diseño**. Cancelar o cerrar descarta el borrador. Las preferencias se guardan por cuenta en `profiles.dashboard_layout`, sincronizadas al cargar el perfil en otro dispositivo. El procedimiento `update_diary_dashboard` modifica únicamente ese campo bajo los permisos y RLS del usuario; no altera su perfil ni sus registros. La demo utiliza la misma personalización sin escribir en Supabase. También puede abrirse desde **Ajustes → Tu inicio**.
+
+Para una instalación nueva, ejecutar también `supabase/dashboard-layout.sql`. La columna es opcional: un valor nulo mantiene la distribución original. La nueva versión cuenta con 71 pruebas, incluidas normalización de preferencias, separación del borrador, orden de columnas, datos desconocidos y persistencia confirmada.

@@ -1,5 +1,6 @@
 import {escapeHtml as e} from './domain.js';
 export const TOUR=[
+ {view:'summary',target:'.dashboard-personalize-button',title:'Un inicio a tu medida',text:'Puedes empezar con Diario, Hábitos o Evolución. En Personalizar puedes cambiar de diseño, elegir indicadores y ordenar paneles cuando quieras.'},
  {view:'summary',target:'.day-list',title:'Tu registro diario',text:'Abre un día. Puedes añadir desayuno, almuerzo, comida, merienda y cena, con nota o fotografías.'},
  {view:'summary',target:'.exercise-list',title:'Actividad y opciones avanzadas',text:'Añade una sesión de deporte. En comidas y ejercicio encontrarás «Opciones para expertos», siempre opcional.'},
  {view:'goals',target:'.page-head',title:'Objetivos a tu medida',text:'Pulsa «Añadir objetivo», elige una sugerencia y cambia la cantidad. Puedes registrar avances desde cada día.'},
@@ -10,7 +11,7 @@ export const TOUR=[
 ];
 export const HELP={
  body:['Mi cuerpo','Añade un registro con fecha y una o varias fotografías: frontal, lateral y trasera. Se guardan en un contenedor privado de tu cuenta. Puedes compararlas entre fechas y ampliar cada imagen. Procura usar la misma postura, luz y distancia. La exportación JSON incluye las rutas, no los archivos de imagen.'],
- summary:['Registro diario','Abre un día para añadir o editar comidas y deporte. Las fotos se amplían dentro del diario. Los campos de expertos son opcionales y deben corresponder al total de la comida o sesión.'],
+ summary:['Registro diario','Personalizar permite elegir entre tres diseños o guardar tu propia distribución. Puedes ocultar indicadores, ordenarlos y mover paneles entre columnas. En móvil se apila primero la izquierda. Abre un día para añadir o editar comidas y deporte. Las fotos se amplían dentro del diario. Los campos de expertos son opcionales y deben corresponder al total de la comida o sesión.'],
  goals:['Objetivos','Las sugerencias permiten elegir cantidad y frecuencia. Caminar puede usar los minutos de sesiones clasificadas como caminar. Un total manual de una fecha sustituye ese cálculo. El ejercicio semanal cuenta días distintos de lunes a domingo. Agua y lectura se anotan manualmente.'],
  weights:['Peso','Añade la fecha y el peso. La gráfica utiliza los registros disponibles; una fecha sin dato no representa cero.'],
  measurements:['Medidas','Puedes empezar con una sola medida. Cada registro pertenece a una semana o quincena según el modo elegido. El historial conserva los registros de ambos modos y la gráfica utiliza solo los valores existentes.'],
