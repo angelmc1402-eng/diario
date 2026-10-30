@@ -32,6 +32,8 @@ test('customizing order, visibility and columns changes only a detached draft',(
  assert.equal(next.panels.find(x=>x.id==='diary').column,'right');assert.equal(next.columns,'right-wide');
  assert.equal(next.stats.find(x=>x.id==='logged_days').visible,false);assert.equal(JSON.stringify(original),snapshot);
  assert.equal(dashboardName(next),'Personalizado');
+ const phone=changeDashboard(next,{type:'mobile-stats',value:'comfortable'});assert.equal(phone.mobile_stats,'comfortable');assert.equal(phone.columns,next.columns);assert.deepEqual(phone.panels,next.panels);assert.equal(next.mobile_stats,'compact');
+ const legacy={...phone};delete legacy.mobile_stats;assert.equal(normalizeDashboard(legacy).mobile_stats,'compact');assert.equal(normalizeDashboard({...phone,mobile_stats:'invalid'}).mobile_stats,'compact');
 });
 test('panel reordering respects each column and frame uses the actual selected order',()=>{
  let l=dashboardPreset('evolution');l=changeDashboard(l,{type:'move',section:'panels',id:'diary',direction:-1});
@@ -45,7 +47,7 @@ test('onboarding offers exactly three radio choices and editor has explicit acce
  const html=dashboardEditor(dashboardPreset());assert.ok(html.includes('Subir Último peso'));assert.ok(html.includes('Columna de Registro de los días'));assert.ok(html.includes('En móvil'));assert.ok(html.includes('Vista previa'));
 });
 test('preference persistence confirms the exact layout, and failures do not mutate or claim success',async()=>{
- const input=dashboardPreset('habits'),snapshot=JSON.stringify(input),calls=[];
+ const input=changeDashboard(dashboardPreset('habits'),{type:'mobile-stats',value:'comfortable'}),snapshot=JSON.stringify(input),calls=[];
  const db={rpc:async(name,args)=>{calls.push({name,args});return {data:structuredClone(args.p_layout),error:null};}};
  assert.deepEqual(await saveDashboard(db,input),input);assert.equal(calls[0].name,'update_diary_dashboard');assert.deepEqual(Object.keys(calls[0].args),['p_layout']);assert.equal(JSON.stringify(input),snapshot);
  await assert.rejects(()=>saveDashboard({rpc:async()=>({data:null,error:Error('offline')})},input),/offline/);

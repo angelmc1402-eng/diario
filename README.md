@@ -214,3 +214,5 @@ El diseño **Personalizado** permite mostrar u ocultar seis indicadores superior
 Los cambios se aplican con **Guardar diseño**. Cancelar o cerrar descarta el borrador. Las preferencias se guardan por cuenta en `profiles.dashboard_layout`, sincronizadas al cargar el perfil en otro dispositivo. El procedimiento `update_diary_dashboard` modifica únicamente ese campo bajo los permisos y RLS del usuario; no altera su perfil ni sus registros. La demo utiliza la misma personalización sin escribir en Supabase. También puede abrirse desde **Ajustes → Tu inicio**.
 
 Para una instalación nueva, ejecutar también `supabase/dashboard-layout.sql`. La columna es opcional: un valor nulo mantiene la distribución original. La nueva versión cuenta con 71 pruebas, incluidas normalización de preferencias, separación del borrador, orden de columnas, datos desconocidos y persistencia confirmada.
+
+En el inicio, **🎨 Personalizar vista** permite elegir paneles y ordenar indicadores. En teléfono se puede elegir entre indicadores compactos (3 por fila) o amplios (2 por fila); las columnas de escritorio se apilan en el móvil. Esta preferencia se guarda junto al diseño de la cuenta.
