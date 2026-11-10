@@ -113,3 +113,4 @@ body.viewer-open{overflow:hidden}.photo-viewer{position:fixed;inset:0;margin:0;w
 @media(max-width:359px){.diary-mode-control select{max-width:168px}.calendar-day{min-height:78px}.calendar-day strong{font-size:18px}.calendar-marks{min-height:12px}.day-dialog .meal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 body:has(.modal-backdrop){overflow:hidden}.day-dialog>header h2{min-width:0}.day-dialog .dialog-body{flex:1;min-height:0}
+.export-options fieldset{min-width:0;margin:0;padding:14px;border:1px solid var(--line);border-radius:10px;display:grid;gap:12px}.export-options fieldset[hidden]{display:none}.export-options legend{padding:0 6px;font-size:13px;font-weight:600;color:var(--green)}.export-options fieldset p{margin:0}

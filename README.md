@@ -171,12 +171,14 @@ Las fotos de comidas y Mi cuerpo se redimensionan antes de subirlas a un máximo
 
 En cada comida se puede elegir la foto principal entre las existentes o las nuevas, antes de guardar. Se conserva como la primera ruta del álbum; no duplica archivos ni requiere cambios de esquema. Las notas y la selección de archivos no se pierden al cambiar la portada o abrir el visor.
 
-Al final del Resumen hay un botón «Exportar semana/quincena en PDF» para el periodo seleccionado. El informe se genera en el dispositivo e incluye perfil, resumen, gráficas, medias con cobertura, objetivos y avances, hitos, pesos, medidas, citas y detalle diario. Se identifican el último peso y las medidas anteriores usados como referencia y las sesiones de las semanas limítrofes que cuentan para los objetivos. Los días sin registros figuran en el resumen, sin generar una página vacía por fecha.
+Al final del Resumen hay un botón «Exportar semana/quincena en PDF» con dos tipos de informe:
 
-Se puede incluir o excluir fotos de comidas y datos avanzados. Las fotos y notas de Mi cuerpo están excluidas por defecto y requieren selección expresa. Las imágenes se incrustan en el PDF, sin publicar rutas privadas ni enlaces firmados. Si alguna imagen no se descarga, se informa al final del documento. La exportación no estima nutrientes a partir de fotos ni sustituye una valoración profesional.
+- **Resumen de comidas** (predeterminado): exactamente una página A4 por día del periodo, con cinco filas fijas (desayuno, almuerzo, comida, merienda y cena) y cinco huecos de imagen por fila. Se incluyen hasta las cinco primeras fotos, respetando la principal. Los huecos permanecen vacíos si no hay foto y las comidas ausentes se identifican como «Sin registrar». Las imágenes conservan su proporción. Notas largas se abrevian a dos líneas y se avisa de notas o fotos adicionales que pueden consultarse en el completo. No incluye actividad, gráficas ni información corporal. Los días vacíos también conservan su página.
+- **Informe completo**: conserva perfil, gráficas, medias con cobertura, objetivos y avances, hitos, pesos, medidas, citas y detalle diario con todas las fotos y notas. Identifica las referencias anteriores y el ejercicio de semanas limítrofes. Puede ocupar varias páginas por día y omite páginas de detalle vacías.
 
-La biblioteca PDF se carga solo al exportar y está fijada a jsPDF 4.2.1. Las 52 pruebas incluyen el orden de portadas, fechas, referencias, semanas naturales, datos incompletos, exclusión corporal y documentos con notas largas.
+Las fotos de comidas se pueden excluir en ambos formatos. Los datos avanzados y las fotos/notas de Mi cuerpo solo se ofrecen en el completo; la información corporal requiere selección expresa. Las imágenes se incrustan sin publicar rutas privadas ni enlaces firmados. Si fallan, se muestra «No disponible» y un aviso tras descargar. El resumen descarga hasta cinco imágenes en paralelo por comida, reutiliza imágenes repetidas y reduce la resolución a 480 px (640 px en el completo). La biblioteca jsPDF 4.2.1 se carga solo al exportar.
 
+La exportación no estima nutrientes a partir de fotos ni sustituye una valoración profesional. Los datos ausentes no se convierten en cero. La suite incluye comprobaciones de páginas semanales y quincenales, notas largas, límite de cinco fotos, exclusión corporal, imágenes ausentes y conservación del informe completo.
 
 ## Administración e invitaciones
 

@@ -11,7 +11,7 @@ const dateRange=(a,b)=>`${fmt(a)} - ${fmt(b)}`;
 const labels={desayuno:'Desayuno',almuerzo:'Almuerzo',comida:'Comida',merienda:'Merienda',cena:'Cena'};
 const order=Object.keys(labels);
 const sources={manual:'manual',label:'etiqueta',app:'aplicación',estimate:'estimación personal',watch:'dispositivo'};
-export function visitFilename(model){return `GoingFit-${model.days.length===7?'semana':'quincena'}-${model.start}-${model.end}.pdf`;}
+export function visitFilename(model,report='complete'){return `GoingFit-${report==='meals'?'comidas-':''}${model.days.length===7?'semana':'quincena'}-${model.start}-${model.end}.pdf`;}
 class Layout{
  constructor(model){this.model=model;this.doc=new jsPDF({unit:'mm',format:'a4',compress:true});this.y=25;this.page=1;this.header();}
  header(){const d=this.doc;d.setFillColor(...GREEN);d.rect(0,0,210,2,'F');d.setFont('helvetica','bold');d.setFontSize(9);d.setTextColor(...GREEN);d.text('GoingFit | Registro para la visita',16,13);d.setFont('helvetica','normal');d.setFontSize(8);d.setTextColor(...MUTED);d.text(dateRange(this.model.start,this.model.end),194,13,{align:'right'});}
@@ -25,7 +25,54 @@ class Layout{
  footer(){const d=this.doc,n=d.getNumberOfPages();for(let i=1;i<=n;i++){d.setPage(i);d.setDrawColor(...LINE);d.line(16,283,194,283);d.setFont('helvetica','normal');d.setFontSize(8);d.setTextColor(...MUTED);d.text('GoingFit - Datos introducidos por el usuario',16,289);d.text(`${i} / ${n}`,194,289,{align:'right'});}d.setPage(n);}
 }
 function sessionText(s,advanced=true){let t=`${s.activity}${known(s.minutes)?' | '+num(s.minutes)+' min':''}${s.workout_type?' | '+WORKOUT_TYPES[s.workout_type]:''}`;if(advanced){const details=[['kcal_burned','kcal estimadas'],['distance_km','km'],['steps','pasos'],['sets','series'],['reps','repeticiones'],['load_kg','kg por repetición'],['exertion','esfuerzo /10']].filter(([key])=>known(s[key])).map(([key,unit])=>`${num(s[key])} ${unit}`);if(details.length)t+='\n'+details.join(' | ');if(known(s.kcal_burned))t+=' | Origen: '+(sources[s.calorie_source]||'manual');if(s.muscle_groups?.length)t+='\nMúsculos: '+s.muscle_groups.map(k=>MUSCLES[k]||k).join(', ');}if(s.notes)t+='\nNota: '+s.notes;return t;}
-export async function buildVisitPdf(model,{mealPhotos=true,bodyPhotos=false,advanced=true,getImage=async()=>null,onProgress=()=>{}}={}){
+// Fixed A4 template: five meal rows, five reserved image cells per row.
+async function buildMealSummary(model,{mealPhotos=true,getImage=async()=>null,onProgress=()=>{}}={}){
+ const l=new Layout(model),d=l.doc,failed=new Set(),cache=new Map();
+ d.setProperties({title:`GoingFit - Comidas - ${dateRange(model.start,model.end)}`,author:clean(model.profile.display_name||'GoingFit'),subject:'Resumen diario de comidas'});
+ function text(value,x,y,{size=8,bold=false,color=INK,width=178,lines=1}={}){
+  d.setFont('helvetica',bold?'bold':'normal');d.setFontSize(size);d.setTextColor(...color);
+  const all=d.splitTextToSize(clean(value).replace(/\s+/g,' ').trim(),width),visible=all.slice(0,lines);
+  if(all.length>lines){let last=visible.at(-1)||'';while(last&&d.getTextWidth(last+'...')>width)last=last.slice(0,-1);visible[visible.length-1]=last+'...';}
+  if(visible.length)d.text(visible,x,y,{lineHeightFactor:1.15});
+  return all.length>lines;
+ }
+ async function image(path){
+  if(!cache.has(path))cache.set(path,(async()=>{try{const img=await getImage(path);if(!img?.data||!(img.width>0)||!(img.height>0))throw Error('Imagen no disponible');return img;}catch{failed.add(path);return null;}})());
+  return cache.get(path);
+ }
+ for(const [index,day] of model.days.entries()){
+  if(index)l.newPage();
+  onProgress(`Preparando ${index+1} de ${model.days.length} días…`);
+  // Cover the shared header label; the summary has no extra cover or charts.
+  d.setFillColor(255,255,255);d.rect(15,8,101,9,'F');
+  text('GoingFit | Resumen de comidas',16,13,{size:9,bold:true,color:GREEN,width:100});
+  text(new Intl.DateTimeFormat('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(day.date+'T12:00:00')),16,29,{size:16,bold:true,color:GREEN});
+  text(model.profile.display_name||'Mi registro',16,37,{size:10});
+  text('Una fila por comida · Hasta 5 fotos por fila · Notas abreviadas',16,44,{size:8,color:MUTED});
+  let abbreviated=false,extra=0;
+  for(const [row,type] of order.entries()){
+   const meal=day.meals.find(m=>m.meal_type===type),top=50+row*44,photos=mealPhotos?(meal?.photos||[]).slice(0,5):[];
+   extra+=mealPhotos?Math.max(0,(meal?.photos?.length||0)-5):0;
+   d.setFillColor(245,248,241);d.setDrawColor(...LINE);d.setLineWidth(.2);d.roundedRect(16,top,178,42,1.5,1.5,'FD');
+   text(labels[type]+(meal?.meal_time?' | '+meal.meal_time.slice(0,5):''),19,top+5,{size:9,bold:true,color:GREEN});
+   const images=await Promise.all(photos.map(image));
+   for(let col=0;col<5;col++){
+    const x=19+col*35,width=32,height=23,y=top+8,img=images[col];
+    d.setFillColor(255,255,255);d.setDrawColor(...LINE);d.roundedRect(x,y,width,height,.7,.7,'FD');
+    if(img){try{const factor=Math.min((width-1)/img.width,(height-1)/img.height),iw=img.width*factor,ih=img.height*factor;d.addImage(img.data,'JPEG',x+(width-iw)/2,y+(height-ih)/2,iw,ih,undefined,'FAST');}catch{failed.add(photos[col]);text('No disponible',x+2,y+13,{size:7,color:MUTED,width:28});}}
+    else if(photos[col])text('No disponible',x+2,y+13,{size:7,color:MUTED,width:28});
+   }
+   const note=meal?(meal.notes||(!mealPhotos?'Fotos no incluidas.':'Sin nota.')):'Sin registrar.';
+   abbreviated=text(note,19,top+35,{size:8,color:meal?INK:MUTED,width:172,lines:2})||abbreviated;
+  }
+  const info=[abbreviated?'Notas abreviadas.':null,extra?`${extra} foto(s) adicional(es) fuera del resumen.`:null].filter(Boolean).join(' ');
+  if(info)text(info+' Consulta el informe completo.',16,276,{size:7,color:MUTED});
+ }
+ l.footer();return {doc:d,warnings:failed.size};
+}
+export async function buildVisitPdf(model,{report='meals',mealPhotos=true,bodyPhotos=false,advanced=true,getImage=async()=>null,onProgress=()=>{}}={}){
+ if(report==='meals')return buildMealSummary(model,{mealPhotos,getImage,onProgress});
+ if(report!=='complete')throw Error('Elige un tipo de informe válido.');
  const l=new Layout(model),d=l.doc,warnings=[];d.setProperties({title:`GoingFit - ${dateRange(model.start,model.end)}`,author:clean(model.profile.display_name||'GoingFit'),subject:'Registro personal de comidas, actividad y evolución'});
  const imageCache=new Map();async function image(path){if(!imageCache.has(path))imageCache.set(path,(async()=>{try{const img=await getImage(path);if(!img)throw Error('No disponible');return img;}catch{warnings.push(path);return null;}})());return imageCache.get(path);}
  function picture(img,x,y,width,height){const factor=Math.min(width/img.width,height/img.height);const iw=img.width*factor,ih=img.height*factor;d.addImage(img.data,'JPEG',x+(width-iw)/2,y+(height-ih)/2,iw,ih,undefined,'FAST');}
@@ -54,4 +101,4 @@ export async function buildVisitPdf(model,{mealPhotos=true,bodyPhotos=false,adva
  }
  if(warnings.length){l.heading('Imágenes no disponibles');l.text(`${warnings.length} imágenes no se pudieron incorporar. Los demás registros se han incluido. Comprueba la conexión y vuelve a exportar si las necesitas.`,{size:9});}l.footer();return {doc:d,warnings:warnings.length};
 }
-export async function pdfImage(path,getUrl){const url=await getUrl(path);return await new Promise((resolve,reject)=>{const img=new Image(),timer=setTimeout(()=>{img.src='';reject(Error('Tiempo de imagen agotado'));},10000);img.crossOrigin='anonymous';img.onload=()=>{clearTimeout(timer);try{const scale=Math.min(1,640/Math.max(img.naturalWidth,img.naturalHeight)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve({data:canvas.toDataURL('image/jpeg',.72),width:canvas.width,height:canvas.height});}catch(err){reject(err);}};img.onerror=()=>{clearTimeout(timer);reject(Error('Imagen no disponible'));};img.src=url;});}
+export async function pdfImage(path,getUrl,maxEdge=640){const url=await getUrl(path);return await new Promise((resolve,reject)=>{const img=new Image(),timer=setTimeout(()=>{img.src='';reject(Error('Tiempo de imagen agotado'));},10000);img.crossOrigin='anonymous';img.onload=()=>{clearTimeout(timer);try{const scale=Math.min(1,maxEdge/Math.max(img.naturalWidth,img.naturalHeight)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve({data:canvas.toDataURL('image/jpeg',.72),width:canvas.width,height:canvas.height});}catch(err){reject(err);}};img.onerror=()=>{clearTimeout(timer);reject(Error('Imagen no disponible'));};img.src=url;});}
