@@ -1,4 +1,5 @@
 import {jsPDF} from 'jspdf';
+import {exerciseEmoji} from './pdf-exercise-icon.js';
 import {addDays,daysBetween} from './domain.js';
 import {MEASURES} from './measurements.js';
 import {NUTRIENTS,WORKOUT_TYPES,MUSCLES,known} from './nutrition.js';
@@ -25,7 +26,8 @@ class Layout{
  footer(){const d=this.doc,n=d.getNumberOfPages();for(let i=1;i<=n;i++){d.setPage(i);d.setDrawColor(...LINE);d.line(16,283,194,283);d.setFont('helvetica','normal');d.setFontSize(8);d.setTextColor(...MUTED);d.text('GoingFit - Datos introducidos por el usuario',16,289);d.text(`${i} / ${n}`,194,289,{align:'right'});}d.setPage(n);}
 }
 function sessionText(s,advanced=true){let t=`${s.activity}${known(s.minutes)?' | '+num(s.minutes)+' min':''}${s.workout_type?' | '+WORKOUT_TYPES[s.workout_type]:''}`;if(advanced){const details=[['kcal_burned','kcal estimadas'],['distance_km','km'],['steps','pasos'],['sets','series'],['reps','repeticiones'],['load_kg','kg por repetición'],['exertion','esfuerzo /10']].filter(([key])=>known(s[key])).map(([key,unit])=>`${num(s[key])} ${unit}`);if(details.length)t+='\n'+details.join(' | ');if(known(s.kcal_burned))t+=' | Origen: '+(sources[s.calorie_source]||'manual');if(s.muscle_groups?.length)t+='\nMúsculos: '+s.muscle_groups.map(k=>MUSCLES[k]||k).join(', ');}if(s.notes)t+='\nNota: '+s.notes;return t;}
-// Fixed A4 template: five meal rows, five reserved image cells per row.
+function exerciseBrief(sessions){return sessions.map(s=>[s.activity,known(s.minutes)?`${num(s.minutes)} min`:null,s.notes].filter(Boolean).join(' · ')).join(' / ');}
+// One A4 page per day; absent meals collapse, recorded meals retain five image cells.
 async function buildMealSummary(model,{mealPhotos=true,getImage=async()=>null,onProgress=()=>{}}={}){
  const l=new Layout(model),d=l.doc,failed=new Set(),cache=new Map();
  d.setProperties({title:`GoingFit - Comidas - ${dateRange(model.start,model.end)}`,author:clean(model.profile.display_name||'GoingFit'),subject:'Resumen diario de comidas'});
@@ -48,24 +50,33 @@ async function buildMealSummary(model,{mealPhotos=true,getImage=async()=>null,on
   text('GoingFit | Resumen de comidas',16,13,{size:9,bold:true,color:GREEN,width:100});
   text(new Intl.DateTimeFormat('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(day.date+'T12:00:00')),16,29,{size:16,bold:true,color:GREEN});
   text(model.profile.display_name||'Mi registro',16,37,{size:10});
-  text('Una fila por comida · Hasta 5 fotos por fila · Notas abreviadas',16,44,{size:8,color:MUTED});
-  let abbreviated=false,extra=0;
-  for(const [row,type] of order.entries()){
-   const meal=day.meals.find(m=>m.meal_type===type),top=50+row*44,photos=mealPhotos?(meal?.photos||[]).slice(0,5):[];
+  let abbreviated=false,extra=0,top=58;
+  if(day.exercise.length){
+   d.addImage(exerciseEmoji,'PNG',16,41,7,7);
+   abbreviated=text('Ejercicio: '+exerciseBrief(day.exercise),26,44,{size:8,color:GREEN,width:168,lines:2});
+  }else text(day.status.exercise_complete?'Descanso confirmado.':'Sin ejercicio registrado.',16,44,{size:8,color:MUTED});
+  for(const type of order){
+   const meal=day.meals.find(m=>m.meal_type===type),photos=mealPhotos?(meal?.photos||[]).slice(0,5):[];
+   if(!meal){
+    d.setFillColor(245,248,241);d.setDrawColor(...LINE);d.setLineWidth(.2);d.roundedRect(16,top,178,10,1.5,1.5,'FD');
+    text(`${labels[type]} · No hubo (sin registro)`,19,top+6.5,{size:8,color:MUTED});
+    top+=12;continue;
+   }
    extra+=mealPhotos?Math.max(0,(meal?.photos?.length||0)-5):0;
-   d.setFillColor(245,248,241);d.setDrawColor(...LINE);d.setLineWidth(.2);d.roundedRect(16,top,178,42,1.5,1.5,'FD');
+   d.setFillColor(245,248,241);d.setDrawColor(...LINE);d.setLineWidth(.2);d.roundedRect(16,top,178,40,1.5,1.5,'FD');
    text(labels[type]+(meal?.meal_time?' | '+meal.meal_time.slice(0,5):''),19,top+5,{size:9,bold:true,color:GREEN});
    const images=await Promise.all(photos.map(image));
    for(let col=0;col<5;col++){
-    const x=19+col*35,width=32,height=23,y=top+8,img=images[col];
+    const x=19+col*35,width=32,height=21,y=top+8,img=images[col];
     d.setFillColor(255,255,255);d.setDrawColor(...LINE);d.roundedRect(x,y,width,height,.7,.7,'FD');
     if(img){try{const factor=Math.min((width-1)/img.width,(height-1)/img.height),iw=img.width*factor,ih=img.height*factor;d.addImage(img.data,'JPEG',x+(width-iw)/2,y+(height-ih)/2,iw,ih,undefined,'FAST');}catch{failed.add(photos[col]);text('No disponible',x+2,y+13,{size:7,color:MUTED,width:28});}}
     else if(photos[col])text('No disponible',x+2,y+13,{size:7,color:MUTED,width:28});
    }
    const note=meal?(meal.notes||(!mealPhotos?'Fotos no incluidas.':'Sin nota.')):'Sin registrar.';
-   abbreviated=text(note,19,top+35,{size:8,color:meal?INK:MUTED,width:172,lines:2})||abbreviated;
+   abbreviated=text(note,19,top+33,{size:8,color:INK,width:172,lines:2})||abbreviated;
+   top+=42;
   }
-  const info=[abbreviated?'Notas abreviadas.':null,extra?`${extra} foto(s) adicional(es) fuera del resumen.`:null].filter(Boolean).join(' ');
+  const info=[abbreviated?'Texto abreviado.':null,extra?`${extra} foto(s) adicional(es) fuera del resumen.`:null].filter(Boolean).join(' ');
   if(info)text(info+' Consulta el informe completo.',16,276,{size:7,color:MUTED});
  }
  l.footer();return {doc:d,warnings:failed.size};
@@ -90,7 +101,7 @@ export async function buildVisitPdf(model,{report='meals',mealPhotos=true,bodyPh
  if(model.contextExercise.length){l.heading('Ejercicio de las semanas limítrofes');l.text('Sesiones fuera del periodo seleccionado que sí cuentan para sus objetivos semanales.',{size:8,color:MUTED});for(const x of model.contextExercise){l.text(fmt(x.date),{bold:true});l.text(sessionText(x,advanced));l.space(3);}}
  if(!bodyPhotos){l.heading('Mi cuerpo');l.text(model.body.length?`${model.body.length} registros en el periodo. Fotografías y notas corporales no incluidas por tu elección.`:'Sin registros corporales en estas fechas.',{color:MUTED});}
  for(let dayIndex=0;dayIndex<model.days.length;dayIndex++){
-  const day=model.days[dayIndex];if(!day.hasRecords)continue;onProgress(`Preparando ${dayIndex+1} de ${model.days.length} días…`);l.newPage();l.text(new Intl.DateTimeFormat('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(day.date+'T12:00:00')),{size:16,bold:true,leading:8});l.text(`Comidas: ${num(day.metrics.kcal.value)} kcal | Proteína: ${num(day.metrics.protein_g.value)} g | Ejercicio: ${num(day.burn.value)} kcal`,{size:9});l.text(`Alimentación: ${day.status.nutrition_complete?'marcada completa':'sin confirmar completa'} | Actividad: ${day.status.exercise_complete?'completa o descanso confirmado':'sin confirmar completa'}`,{size:8,color:MUTED});l.space(4);
+  const day=model.days[dayIndex];if(!day.hasRecords)continue;onProgress(`Preparando ${dayIndex+1} de ${model.days.length} días…`);l.newPage();l.text(new Intl.DateTimeFormat('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(day.date+'T12:00:00')),{size:16,bold:true,leading:8});if(day.exercise.length){d.addImage(exerciseEmoji,'PNG',16,l.y-1,6,6);l.text('Ejercicio: '+exerciseBrief(day.exercise),{size:9,x:25,width:169,leading:4.2});l.space(3);}l.text(`Comidas: ${num(day.metrics.kcal.value)} kcal | Proteína: ${num(day.metrics.protein_g.value)} g | Ejercicio: ${num(day.burn.value)} kcal`,{size:9});l.text(`Alimentación: ${day.status.nutrition_complete?'marcada completa':'sin confirmar completa'} | Actividad: ${day.status.exercise_complete?'completa o descanso confirmado':'sin confirmar completa'}`,{size:8,color:MUTED});l.space(4);
   if(!day.meals.length)l.text('Sin comidas registradas.',{color:MUTED});
   for(const m of [...day.meals].sort((a,b)=>order.indexOf(a.meal_type)-order.indexOf(b.meal_type))){const photos=mealPhotos?(m.photos||[]):[],first=photos.length?await image(photos[0]):null;l.need(first?39:19);l.text(`${labels[m.meal_type]||m.meal_type}${m.meal_time?' | '+m.meal_time.slice(0,5):''}`,{bold:true,size:11});const beforePage=l.page,top=l.y;if(first)picture(first,146,top-2,48,24);const width=first?121:178;l.text(m.notes||'Sin nota.',{size:9,width,leading:4.2});if(advanced){l.text(NUTRIENTS.filter(([k])=>known(m[k])).map(([k,label,unit])=>`${label}: ${num(m[k])} ${unit}`).join(' | ')||'Sin valores nutricionales anotados.',{size:8,width,color:MUTED,leading:4});l.text('Origen: '+(sources[m.nutrition_source]||'manual'),{size:7.5,width,color:MUTED,leading:4});}if(l.page===beforePage)l.y=Math.max(l.y,top+(first?25:0));if(photos.length&&!first)l.text('Foto principal no disponible.',{size:8,color:MUTED});for(let i=1;i<photos.length;i+=4){l.need(32);const y=l.y;for(let j=0;j<4&&i+j<photos.length;j++){const img=await image(photos[i+j]);if(img)picture(img,16+j*45,y,42,27);else{d.setFontSize(8);d.setTextColor(...MUTED);d.text('Foto no disponible',16+j*45,y+12);}}l.space(32);}l.space(2);l.line();}
   l.need(18);l.text('Ejercicio',{bold:true,size:11});if(!day.exercise.length)l.text(day.status.exercise_complete?'Descanso confirmado.':'Sin sesiones anotadas; no equivale a descanso confirmado.',{size:9,color:MUTED});for(const x of day.exercise){l.text(sessionText(x,advanced),{size:9});l.space(3);}

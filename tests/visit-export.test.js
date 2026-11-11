@@ -29,3 +29,19 @@ test('summary without photos makes no image requests and complete filenames stay
  assert.equal(visitFilename(model,'complete'),visitFilename(model));
  await assert.rejects(buildVisitPdf(model,{report:'invalid'}));
 });
+test('daily summary collapses absent meals and embeds exercise emoji with a brief session description',async()=>{
+ const model=visitData({meals:[{date:'2026-11-09',meal_type:'desayuno',notes:'Tostadas'}],exercise:[{date:'2026-11-09',activity:'Caminar',minutes:30,notes:'Por el parque'},{date:'2026-11-09',activity:'Fuerza',notes:'Piernas'}],day_status:[{date:'2026-11-10',exercise_complete:true}]},'2026-11-09','2026-11-15');
+ const {doc}=await buildVisitPdf(model,{mealPhotos:false});
+ const page=n=>doc.internal.pages[n].join('\n');
+ assert.equal(doc.getNumberOfPages(),7);
+ assert.ok(page(1).includes('Merienda'));assert.ok(page(1).includes('Comida'));
+ assert.equal((page(1).match(/No hubo/g)||[]).length,4);
+ for(const detail of ['Caminar','30 min','Por el parque','Fuerza','Piernas'])assert.ok(page(1).includes(detail));
+ assert.match(page(1),/\/I\d+ Do/);assert.doesNotMatch(page(2),/\/I\d+ Do/);
+ assert.ok(page(2).includes('Descanso confirmado.'));assert.ok(page(3).includes('Sin ejercicio registrado.'));
+});
+test('five recorded meals and long exercise notes still fit on one daily summary page',async()=>{
+ const model=visitData({meals:['desayuno','almuerzo','comida','merienda','cena'].map(meal_type=>({date:'2026-11-09',meal_type,notes:'Texto largo. '.repeat(300)})),exercise:[{date:'2026-11-09',activity:'Caminar',notes:'Ejercicio largo. '.repeat(300)}]},'2026-11-09','2026-11-15');
+ const {doc}=await buildVisitPdf(model,{mealPhotos:false});assert.equal(doc.getNumberOfPages(),7);
+ const first=doc.internal.pages[1].join('\n');assert.ok(!first.includes('No hubo'));assert.ok(first.includes('Texto abreviado.'));
+});
